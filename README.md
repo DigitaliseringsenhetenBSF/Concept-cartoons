@@ -27,12 +27,15 @@ npm run build        # typkontroll + produktionsbygge till dist/
 ## AI-nyckel (valfritt men rekommenderat)
 
 ```bash
-cp .env.example .env   # fyll i ANTHROPIC_API_KEY
+cp .env.example .env   # fyll i OPENAI_API_KEY (eller ANTHROPIC_API_KEY)
 ```
 
-Nyckeln används **endast av servern** (`server/index.ts`) — aldrig i
-webbläsarkod, och `.env` är git-ignorerad. Utan nyckel fungerar verktyget ändå:
-"Skapa tom (skriv själv)" och exempelutsagor täcker hela flödet.
+Servern väljer AI-leverantör utifrån vilken nyckel som finns: **OpenAI**
+(`gpt-5-mini`, ändra med `OPENAI_MODEL`) eller **Anthropic**
+(`claude-sonnet-5`). Nyckeln används **endast av servern**
+(`server/index.ts`) — aldrig i webbläsarkod, och `.env` är git-ignorerad.
+Utan nyckel fungerar verktyget ändå: "Skapa tom (skriv själv)" och
+exempelutsagor täcker hela flödet.
 
 ## Integritet (GDPR)
 

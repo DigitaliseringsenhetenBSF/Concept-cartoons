@@ -69,7 +69,10 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
 - Kontrakt (zod, `src/domain/validering.ts`): exakt 4 utsagor, en per kategori,
   1–250 tecken. Valideras på servern INNAN UI. Vid brott: ett omförsök med
   felbeskrivning, därefter tydligt svenskt fel.
-- Modell: `claude-sonnet-5` via `@anthropic-ai/sdk`. Nyckel endast i server-`.env`.
+- **Leverantör (beslut 2026-07-14): OpenAI** — modell `gpt-5-mini` (konfigurerbar
+  via `OPENAI_MODEL`), adapter i `server/openai.ts`. Anthropic-adaptern finns
+  kvar (`claude-sonnet-5`); servern väljer utifrån vilken nyckel som finns i
+  `.env` (OpenAI först om båda). Nyckel endast i server-`.env`.
 - Rekommenderad maxlängd per stadium (styr prompt + UI-riktmärke):
   lag 90, mellan 120, hog 160 tecken.
 - **Verktyget är fullt användbart utan AI:** "Skapa tom (skriv själv)" +
@@ -87,7 +90,7 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
 
 | Data | Var den finns | Lämnar webbläsaren? |
 |---|---|---|
-| Begrepp, årskurs, språk | UI-state → `/api/generera` → Anthropic API | Ja (enda utflödet) |
+| Begrepp, årskurs, språk | UI-state → `/api/generera` → AI-leverantören (OpenAI; alternativt Anthropic) | Ja (enda utflödet) |
 | Uppladdad bakgrundsbild | Objekt-URL i webbläsarminnet | **Nej, aldrig** |
 | Färdigt underlag | Endast i sessionen + lärarens exporterade filer | Nej (bara som fil till lärarens dator) |
 | Analytics/spårning | Finns inte | — |

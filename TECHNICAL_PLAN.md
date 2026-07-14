@@ -6,7 +6,7 @@
 |---|---|---|---|
 | Frontend | Vite + React 18 + TypeScript (strict) | Svelte (mindre bundle), ren TS utan ramverk | Tråkigt/långlivat, bredast kompetensbas i kommunal miljö |
 | API | Express, en endpoint | Hono (lättare, fler adaptrar), Azure Functions direkt | Minsta möjliga yta; AI-logiken ligger i portabel modul (`server/generera.ts`) som är trivial att flytta till en Function |
-| AI | `@anthropic-ai/sdk`, `claude-sonnet-5` | Opus (dyrare, onödigt), Haiku (svagare pedagogisk nyans) | Bra svenska + följsam mot JSON-kontrakt till rimlig kostnad |
+| AI | **OpenAI `gpt-5-mini`** via fetch (`server/openai.ts`), JSON-läge | Anthropic `claude-sonnet-5` (adaptern kvar, väljs om bara den nyckeln finns) | Produktägaren har OpenAI-konto (beslut 2026-07-14); adaptergränssnittet gör bytet till en konfigurationsfråga |
 | Validering | zod, delat schema server/klient | JSON Schema + ajv | Typinferens gratis, minst kod |
 | Editor | SVG i logiska enheter (1600×900) | Canvas-editor, HTML-divar | SVG ger redigerbar text, skalning och exakt samma koordinatsystem som exporten |
 | PDF/PNG | Egen canvas-omritning 300 DPI → jsPDF | html2canvas-skärmdump | Deterministisk (vi äger scenmodellen), testbar layoutmatte, skarp print |
