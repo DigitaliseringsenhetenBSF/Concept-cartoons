@@ -12,10 +12,10 @@ const FIGURER: Figur[] = ['mellan1', 'mellan2', 'mellan3', 'mellan4', 'mellan5']
 }))
 
 const UTSAGOR: Utsaga[] = [
-  { kategori: 'korrekt', text: 'En halv är en av två lika delar.' },
-  { kategori: 'fel', text: 'En halv är alltid mindre än en fjärdedel.' },
-  { kategori: 'igangsattande', text: 'Kan en halv vara olika stor?' },
-  { kategori: 'fakta', text: 'En halv skrivs 1/2.' },
+  { kategori: 'korrekt', text: 'En halv är en av två lika delar av samma helhet.' },
+  { kategori: 'intuitiv', text: 'En halv pizza är alltid mer än en halv smörgås, så en halv är olika mycket.' },
+  { kategori: 'overgeneralisering', text: '1/2 + 1/4 blir 2/6, man lägger ihop uppe och nere.' },
+  { kategori: 'falsklogik', text: 'Delar man något blir det mindre, så en halv väger mindre än helheten delat på två.' },
 ]
 
 function scenMedFro(fro: number) {

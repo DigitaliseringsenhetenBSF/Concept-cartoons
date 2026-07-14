@@ -15,9 +15,9 @@ export function exempelUtsagor(begrepp: string): Utsaga[] {
   const amne = begrepp.replace(/[?!.]+$/, '')
   return [
     { kategori: 'korrekt', text: `Jag tror det finns en förklaring till ${sank(amne)} som vi kan undersöka.` },
-    { kategori: 'fel', text: `Det är nog bara magi – ${sank(amne)} går inte att förklara.` },
-    { kategori: 'igangsattande', text: `Hur skulle vi kunna ta reda på det? Kan vi testa själva?` },
-    { kategori: 'fakta', text: `Jag har läst att forskare har undersökt det här länge.` },
+    { kategori: 'intuitiv', text: `Det syns ju direkt hur det är – det behöver man inte undersöka.` },
+    { kategori: 'overgeneralisering', text: `Vi lärde oss en regel för sånt här förut, så den gäller säkert här också.` },
+    { kategori: 'falsklogik', text: `Det händer nog för att det ena skapar det andra – det måste vara så.` },
   ]
 }
 

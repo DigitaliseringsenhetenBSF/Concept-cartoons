@@ -4,9 +4,9 @@ import { aiSvarSchema, genereraBegaranSchema } from './validering'
 const GILTIGT = {
   utsagor: [
     { kategori: 'korrekt', text: 'Ljuset bryts i vattendropparna.' },
-    { kategori: 'fel', text: 'Regnbågen är målad på himlen.' },
-    { kategori: 'igangsattande', text: 'Kan man ta på en regnbåge?' },
-    { kategori: 'fakta', text: 'Regnbågen har sju färger.' },
+    { kategori: 'intuitiv', text: 'Regnbågen är målad på himlen.' },
+    { kategori: 'overgeneralisering', text: 'Allt ljus har sju färger, precis som regnbågen.' },
+    { kategori: 'falsklogik', text: 'Regnet gör himlen blöt så att färgerna rinner fram.' },
   ],
 }
 

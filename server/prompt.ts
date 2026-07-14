@@ -11,8 +11,9 @@ men fortfarande talspråkligt och autentiskt tonårsspråk – inte läroboksspr
 } as const
 
 /**
- * Bygger prompten för utsagegenerering. Skolverkets Concept Cartoons är den
- * pedagogiska kvalitetsribban (metoden – aldrig deras texter).
+ * Bygger prompten för utsagegenerering. Kategoridefinitionerna följer
+ * produktägarens taxonomi (SPEC §3), med Skolverkets Concept Cartoons som
+ * pedagogisk kvalitetsribba (metoden – aldrig deras texter).
  */
 export function byggPrompt(begrepp: string, arskurs: Arskurs, sprak: string): {
   system: string
@@ -24,25 +25,48 @@ export function byggPrompt(begrepp: string, arskurs: Arskurs, sprak: string): {
   const system = `Du skriver elevutsagor till "concept cartoons" – diskussionsbilder där
 tecknade barn säger olika saker om ett begrepp, enligt Keogh & Naylors metod som
 Skolverket använder. Syftet är KLASSRUMSDISKUSSION, inte rätt svar: eleverna ska
-reagera på barnens påståenden, och vanliga missuppfattningar ska bli synliga och
-möjliga att resonera om.
+reagera på barnens påståenden, och olika slags missuppfattningar ska bli synliga
+och möjliga att resonera om.
 
 Skriv exakt fyra utsagor i första person, som om olika barn säger dem:
-1. "korrekt" – vetenskapligt/ämnesmässigt korrekt, men uttryckt som ett barn skulle säga det.
-2. "fel" – en PLAUSIBEL och VANLIG missuppfattning som många elever faktiskt har.
-   Den ska kännas rimlig och lätt att hålla med om – aldrig dum, hånfull eller överdriven.
-3. "igangsattande" – en tankeväckande, öppen utsaga eller motfråga som sätter igång resonemang.
-4. "fakta" – en relaterad, korrekt faktautsaga som ger diskussionen mer att arbeta med.
+
+1. "korrekt" – DET VETENSKAPLIGT KORREKTA SVARET. Den korrekta förklaringen
+   enligt gällande vetenskapliga/matematiska principer, uttryckt på enkelt
+   vardagsspråk anpassat för målgruppen utan att förlora sin stringens.
+   (I stil med: "Vattnet avdunstar vid alla temperaturer.")
+
+2. "intuitiv" – DEN INTUITIVA/VARDAGLIGA MISSUPPFATTNINGEN. Det som känns
+   logiskt vid första anblick men är vetenskapligt fel. Bygger ofta på
+   hopblandade vardagsbegrepp (vikt/volym, värme/temperatur) eller förhastade
+   slutsatser utifrån det man direkt kan se.
+   (I stil med att bara räkna de minsta rutorna på ett schackbräde, eller
+   "ju längre vinkelben, desto större vinkel".)
+
+3. "overgeneralisering" – ÖVERGENERALISERINGEN (regelföljande fel). Eleven har
+   lärt sig en regel men tillämpar den där den inte gäller, eller hoppar över
+   nödvändiga mellansteg.
+   (I stil med att addera täljare för sig och nämnare för sig, eller
+   "144 är delbart med 4 eftersom det slutar på 4".)
+
+4. "falsklogik" – DET MISSUPPFATTADE ORSAKSSAMBANDET (falsk logik). En logisk
+   tankekedja där utgångspunkten eller mekanismen är felaktig – en egen, ofta
+   bakvänd förklaringsmodell.
+   (I stil med "sätt inte jackan på snögubben, då smälter den" – som om jackan
+   skapade värme i stället för att isolera.)
 
 Regler:
 - Språkregister: ${REGISTER_PER_STADIUM[stadium]}
 - Skriv på ${sprak}.
 - Max ${Math.round(maxlangd * 0.85)} tecken per utsaga.
-- Inga namn på barn, inga stereotyper, ingen som pekas ut.
-- Utsagorna ska handla om SAMMA situation/begrepp så att de går att ställa mot varandra.
+- Inga namn på barn, inga stereotyper, ingen som pekas ut eller förlöjligas –
+  varje felaktig utsaga ska kännas rimlig och lätt att hålla med om.
+- Alla fyra utsagorna ska handla om SAMMA situation/begrepp så att de går att
+  ställa mot varandra i en diskussion.
+- Om någon kategori inte passar begreppet naturligt: skriv den mest närliggande
+  trovärdiga elevtanken av det slaget i stället för att tvinga fram något konstlat.
 
 Svara med ENDAST giltig JSON, utan kodstaket eller kommentarer, exakt i detta format:
-{"utsagor":[{"kategori":"korrekt","text":"..."},{"kategori":"fel","text":"..."},{"kategori":"igangsattande","text":"..."},{"kategori":"fakta","text":"..."}]}`
+{"utsagor":[{"kategori":"korrekt","text":"..."},{"kategori":"intuitiv","text":"..."},{"kategori":"overgeneralisering","text":"..."},{"kategori":"falsklogik","text":"..."}]}`
 
   const anvandare = `Begrepp/fråga från läraren: "${begrepp}"
 Årskurs: ${arskurs === 'F' ? 'förskoleklass' : arskurs}`

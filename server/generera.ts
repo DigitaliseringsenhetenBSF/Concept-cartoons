@@ -30,17 +30,47 @@ export async function genereraUtsagor(
     const tolkat = tolkaJson(ratext)
     if (!tolkat.ok) {
       senasteFel = tolkat.fel
+      console.warn(`AI-svar avvisat (${tolkat.fel}):`, ratext.slice(0, 300))
       continue
     }
 
-    const validerat = aiSvarSchema.safeParse(tolkat.varde)
+    const validerat = aiSvarSchema.safeParse(normaliseraKategorier(tolkat.varde))
     if (validerat.success) return validerat.data.utsagor
     senasteFel = validerat.error.issues.map((i) => i.message).join('; ')
+    console.warn(`AI-svar avvisat (${senasteFel}):`, JSON.stringify(tolkat.varde).slice(0, 300))
   }
 
   throw new GenereringsFel(
     'AI-svaret följde inte det förväntade formatet. Försök igen – eller skriv utsagorna manuellt.',
   )
+}
+
+/**
+ * Modellen skriver ibland kategorinycklarna med svensk stavning
+ * ("Övergeneralisering", "falsk logik") trots mallen. Normalisera till
+ * kontraktets nycklar innan validering: gemener, inga diakriter, inga
+ * mellanslag/bindestreck.
+ */
+export function normaliseraKategorier(varde: unknown): unknown {
+  if (typeof varde !== 'object' || varde === null || !('utsagor' in varde)) return varde
+  const utsagor = (varde as { utsagor: unknown }).utsagor
+  if (!Array.isArray(utsagor)) return varde
+  return {
+    ...varde,
+    utsagor: utsagor.map((u) =>
+      typeof u === 'object' && u !== null && typeof (u as { kategori?: unknown }).kategori === 'string'
+        ? { ...u, kategori: normaliseraNyckel((u as { kategori: string }).kategori) }
+        : u,
+    ),
+  }
+}
+
+function normaliseraNyckel(kategori: string): string {
+  return kategori
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '')
 }
 
 function tolkaJson(ratext: string): { ok: true; varde: unknown } | { ok: false; fel: string } {

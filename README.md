@@ -7,9 +7,11 @@ anpassning) synliggör missuppfattningar och sätter igång klassrumssamtal:
 målet är resonemang, inte rätt svar.
 
 Läraren skriver ett begrepp (t.ex. *"Varför har regnbågen sina färger?"*),
-väljer årskurs (F–9) och språk. AI föreslår fyra utsagor (korrekt, vanlig
-missuppfattning, igångsättande, fakta); en fast "vet inte / ?"-bubbla ingår.
-Läraren redigerar allt och exporterar till **PDF** (utskrift/projektor),
+väljer årskurs (F–9) och språk. AI föreslår fyra utsagor enligt en pedagogisk
+taxonomi (se [SPEC.md](SPEC.md) §3): det vetenskapligt korrekta svaret, en
+intuitiv/vardaglig missuppfattning, en övergeneralisering (regelföljande fel)
+och ett missuppfattat orsakssamband (falsk logik). En fast öppen "?"-bubbla
+ingår. Läraren redigerar allt och exporterar till **PDF** (utskrift/projektor),
 **PowerPoint** (fullt redigerbara objekt) eller **PNG**.
 
 ## Kommandon

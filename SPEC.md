@@ -23,7 +23,7 @@ läraren redigerar, verktyget renderar och exporterar.
 
 | # | Beslut |
 |---|---|
-| 1 | **4 + 1 bubblor:** AI genererar korrekt, fel, igångsättande, fakta. Femte bubblan är en fast "vet inte / ?"-bubbla (Skolverkets konvention) som kan slås av och redigeras. |
+| 1 | **4 + 1 bubblor:** AI genererar korrekt, intuitiv missuppfattning, övergeneralisering, falsk logik (taxonomi i §3). Femte bubblan är en fast öppen "?"-bubbla (Skolverkets konvention) som kan slås av och redigeras. |
 | 2 | **Sessionsbaserat:** ingen lagring på server eller i webbläsare. Export är "sparandet". |
 | 3 | **Driftsagnostiskt:** statisk frontend + liten Node-API. Körs lokalt; flyttbart till Azure m.m. Ingen inloggning i v1. |
 | 4 | **Språk:** svenska standard + valbart språk (engelska, arabiska, somaliska, ukrainska, fritext) för flerspråkiga klassrum. |
@@ -34,8 +34,16 @@ ingen LMS-integration, inget allmänt ritverktyg.
 
 ## 3. Domänmodell
 
-- **Utsaga** = { kategori, text }. Kategorier: `korrekt`, `fel` (plausibel
-  missuppfattning), `igangsattande`, `fakta` samt `vetinte` (fast).
+- **Utsaga** = { kategori, text }. Kategorier enligt produktägarens taxonomi
+  (beslut 2026-07-14, baserad på analys av Skolverkets material):
+
+  | Nyckel | Kategori | Innebörd |
+  |---|---|---|
+  | `korrekt` | Det vetenskapligt korrekta svaret | Korrekt förklaring enligt gällande principer, på enkelt vardagsspråk utan att förlora stringens |
+  | `intuitiv` | Den intuitiva/vardagliga missuppfattningen | Känns logiskt vid första anblick men är fel; hopblandade vardagsbegrepp (vikt/volym, värme/temperatur) eller förhastade slutsatser av det synliga |
+  | `overgeneralisering` | Övergeneraliseringen (regelföljande fel) | En inlärd regel tillämpas där den inte gäller, eller mellansteg glöms (t.ex. täljare + täljare, nämnare + nämnare) |
+  | `falsklogik` | Det missuppfattade orsakssambandet (falsk logik) | Logisk tankekedja med felaktig utgångspunkt/mekanism – en egen, ofta bakvänd förklaringsmodell ("jackan smälter snögubben") |
+  | `vetinte` | Den öppna frågan / tomma förslaget ("?") | Fast bubbla som bjuder in den läsande eleven med egna teorier; kan redigeras eller döljas |
 - **Scen** = begrepp, årskurs, stadium, språk, ev. bakgrunds-URL, 5 pratbubblor
   (kategori, text, figur, fyllnadsfärg), visaVetInte.
 - **Årskurs → stadium:** F–3 → `lag`, 4–6 → `mellan`, 7–9 → `hog`. Styr både

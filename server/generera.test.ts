@@ -6,9 +6,9 @@ const BEGARAN = { begrepp: 'Varför har regnbågen sina färger?', arskurs: '4',
 const GILTIG_JSON = JSON.stringify({
   utsagor: [
     { kategori: 'korrekt', text: 'Ljuset bryts i vattendropparna.' },
-    { kategori: 'fel', text: 'Färgerna kommer från solen som målar himlen.' },
-    { kategori: 'igangsattande', text: 'Varför ser man den bara ibland?' },
-    { kategori: 'fakta', text: 'En regnbåge är egentligen en hel cirkel.' },
+    { kategori: 'intuitiv', text: 'Färgerna kommer från solen som målar himlen.' },
+    { kategori: 'overgeneralisering', text: 'Allt ljus som bryts blir alltid en regnbåge.' },
+    { kategori: 'falsklogik', text: 'Regnet tvättar himlen så att färgerna syns.' },
   ],
 })
 
@@ -39,14 +39,37 @@ describe('genereraUtsagor', () => {
   })
 
   it('gör omförsök när en kategori saknas', async () => {
-    const utanFakta = JSON.stringify({
+    const utanFalskLogik = JSON.stringify({
       utsagor: JSON.parse(GILTIG_JSON).utsagor.map((u: { kategori: string }) =>
-        u.kategori === 'fakta' ? { ...u, kategori: 'korrekt' } : u,
+        u.kategori === 'falsklogik' ? { ...u, kategori: 'korrekt' } : u,
       ),
     })
-    const modell = vi.fn().mockResolvedValueOnce(utanFakta).mockResolvedValueOnce(GILTIG_JSON)
+    const modell = vi
+      .fn()
+      .mockResolvedValueOnce(utanFalskLogik)
+      .mockResolvedValueOnce(GILTIG_JSON)
     await expect(genereraUtsagor(BEGARAN, modell)).resolves.toHaveLength(4)
     expect(modell).toHaveBeenCalledTimes(2)
+  })
+
+  it('normaliserar svensk stavning av kategorinycklar (ö, mellanslag, versaler)', async () => {
+    const svenskStavning = JSON.stringify({
+      utsagor: [
+        { kategori: 'Korrekt', text: 'Ljuset bryts i vattendropparna.' },
+        { kategori: 'Intuitiv', text: 'Färgerna kommer från solen som målar himlen.' },
+        { kategori: 'Övergeneralisering', text: 'Allt ljus som bryts blir alltid en regnbåge.' },
+        { kategori: 'Falsk logik', text: 'Regnet tvättar himlen så att färgerna syns.' },
+      ],
+    })
+    const modell = vi.fn().mockResolvedValue(svenskStavning)
+    const utsagor = await genereraUtsagor(BEGARAN, modell)
+    expect(utsagor.map((u) => u.kategori).sort()).toEqual([
+      'falsklogik',
+      'intuitiv',
+      'korrekt',
+      'overgeneralisering',
+    ])
+    expect(modell).toHaveBeenCalledTimes(1)
   })
 
   it('kastar ett svenskt fel efter två misslyckade försök', async () => {

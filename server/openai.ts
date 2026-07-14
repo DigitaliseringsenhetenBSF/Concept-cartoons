@@ -14,7 +14,10 @@ export function skapaOpenAiAnrop(apiNyckel: string, modell: string): ModellAnrop
       },
       body: JSON.stringify({
         model: modell,
-        max_completion_tokens: 2048,
+        // Resonerande modeller (gpt-5-familjen) räknar interna resonemangs-tokens
+        // mot budgeten – ge marginal och håll resonemanget kort för denna enkla uppgift.
+        max_completion_tokens: 8000,
+        ...(arResonerande(modell) ? { reasoning_effort: 'low' } : {}),
         // JSON-läge minskar risken för kontraktsbrott; prompten kräver redan JSON.
         response_format: { type: 'json_object' },
         messages: [
@@ -30,8 +33,17 @@ export function skapaOpenAiAnrop(apiNyckel: string, modell: string): ModellAnrop
     }
 
     const data = (await svar.json()) as {
-      choices?: { message?: { content?: string | null } }[]
+      choices?: { message?: { content?: string | null }; finish_reason?: string }[]
     }
-    return data.choices?.[0]?.message?.content ?? ''
+    const val = data.choices?.[0]
+    if (val?.finish_reason === 'length' && !val.message?.content) {
+      throw new Error('OpenAI-svaret trunkerades innan något innehåll hann genereras (finish_reason=length).')
+    }
+    return val?.message?.content ?? ''
   }
+}
+
+/** gpt-5-familjen och o-serien tar reasoning_effort; övriga modeller avvisar parametern. */
+function arResonerande(modell: string): boolean {
+  return /^(gpt-5|o\d)/.test(modell)
 }

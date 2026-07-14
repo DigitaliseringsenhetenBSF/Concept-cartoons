@@ -97,9 +97,9 @@ export function App() {
     settScen(
       byggScen([
         { kategori: 'korrekt', text: '' },
-        { kategori: 'fel', text: '' },
-        { kategori: 'igangsattande', text: '' },
-        { kategori: 'fakta', text: '' },
+        { kategori: 'intuitiv', text: '' },
+        { kategori: 'overgeneralisering', text: '' },
+        { kategori: 'falsklogik', text: '' },
       ]),
     )
   }
@@ -340,7 +340,7 @@ export function App() {
                   checked={scen.visaVetInte}
                   onChange={(h) => settScen({ ...scen, visaVetInte: h.target.checked })}
                 />
-                Visa "vet inte / ?"-bubblan
+                Visa öppna "?"-bubblan
               </label>
               <label className="kryssrad">
                 <input
@@ -392,9 +392,9 @@ export function App() {
           <div className="valkommen">
             <h2>Skapa ett diskussionsunderlag</h2>
             <p>
-              Skriv ett begrepp eller en fråga, välj årskurs och låt AI föreslå elevutsagor – en
-              korrekt, en vanlig missuppfattning, en igångsättande och en faktautsaga, plus den
-              klassiska "vet inte / ?"-bubblan. Du redigerar allt innan export.
+              Skriv ett begrepp eller en fråga, välj årskurs och låt AI föreslå elevutsagor – det
+              korrekta svaret, en intuitiv missuppfattning, en övergeneralisering och en falsk
+              logikkedja, plus den klassiska öppna "?"-bubblan. Du redigerar allt innan export.
             </p>
             <p className="tips">
               Metoden bygger på Concept Cartoons (Keogh &amp; Naylor, Skolverket): eleverna
