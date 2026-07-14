@@ -10,6 +10,10 @@ import {
   RADHOJD_FAKTOR,
   SCEN_BREDD,
   SCEN_HOJD,
+  TITEL_FONTSTORLEK,
+  TITEL_HOJD,
+  TITEL_SIDMARGINAL,
+  TITEL_TOPPMARGINAL,
 } from './konstanter'
 
 export interface Rekt {
@@ -54,7 +58,8 @@ export function beraknaLayout(figurMatt: { bredd: number; hojd: number }[]): Pla
       hojd,
     }
 
-    const bubblaY = BUBBLA_TOPPMARGINAL + (i % 2 === 1 ? BUBBLA_STAGGER : 0)
+    // Bubblorna börjar under rubrikytan så att rubriken alltid är fri.
+    const bubblaY = TITEL_HOJD + BUBBLA_TOPPMARGINAL + (i % 2 === 1 ? BUBBLA_STAGGER : 0)
     const bubbla: Rekt = {
       x: begransa(centrumX - BUBBLA_BREDD / 2, 8, SCEN_BREDD - BUBBLA_BREDD - 8),
       y: bubblaY,
@@ -168,4 +173,33 @@ export function passaText(
   }
   const rader = radbrytText(text, innerBredd, MINSTA_FONTSTORLEK, mat)
   return { fontstorlek: MINSTA_FONTSTORLEK, rader, radhojd: MINSTA_FONTSTORLEK * RADHOJD_FAKTOR }
+}
+
+export interface TitelLayout extends PassadText {
+  /** Rubrikytan i scenen; texten centreras horisontellt i den. */
+  rekt: Rekt
+  /** Baslinje för första raden. */
+  forstaBaslinje: number
+}
+
+/**
+ * Passar in lärarens begrepp/fråga i rubrikytan. Texten visas ALLTID i sin
+ * helhet: den radbryts och krymper vid behov, men klipps aldrig. Samma
+ * beräkning används av editorn, PDF/PNG och PowerPoint.
+ */
+export function passaTitel(titel: string, mat: Textmatare): TitelLayout {
+  const rekt: Rekt = {
+    x: TITEL_SIDMARGINAL,
+    y: TITEL_TOPPMARGINAL,
+    bredd: SCEN_BREDD - 2 * TITEL_SIDMARGINAL,
+    hojd: TITEL_HOJD - TITEL_TOPPMARGINAL,
+  }
+  const passad = passaText(titel.trim() || ' ', rekt.bredd, rekt.hojd, TITEL_FONTSTORLEK, mat)
+  const textHojd = passad.rader.length * passad.radhojd
+  return {
+    ...passad,
+    rekt,
+    // Centrera textblocket vertikalt i rubrikytan.
+    forstaBaslinje: rekt.y + (rekt.hojd - textHojd) / 2 + passad.fontstorlek * 0.85,
+  }
 }

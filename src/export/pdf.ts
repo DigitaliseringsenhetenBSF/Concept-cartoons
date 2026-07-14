@@ -13,7 +13,8 @@ import type { Textmatare } from '../domain/layout'
 import { ritaScen } from './canvasrit'
 
 const MARGINAL = 100
-const TITELYTA = 420
+/** Utrymme överst för kolofonraden; själva rubriken bor i scenen. */
+const TOPPYTA = 150
 
 /** Komponerar hela utskriftssidan (A4 liggande, 300 DPI) på en canvas. */
 export async function komponeraExportCanvas(scen: Scen, mat: Textmatare): Promise<HTMLCanvasElement> {
@@ -25,20 +26,15 @@ export async function komponeraExportCanvas(scen: Scen, mat: Textmatare): Promis
   ctx.fillStyle = PALETT.vit
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-  ctx.fillStyle = PALETT.orange
-  ctx.font = `700 44px ${FONT_FAMILJ}`
-  ctx.fillText('DISKUSSIONSUNDERLAG', MARGINAL, 150)
   ctx.fillStyle = PALETT.lila
-  ctx.font = `700 104px ${FONT_FAMILJ}`
-  ctx.fillText(klipp(scen.begrepp, 48), MARGINAL, 275)
-  ctx.fillStyle = PALETT.gron
-  ctx.font = `400 56px ${FONT_FAMILJ}`
-  ctx.fillText(arskursEtikett(scen.arskurs), MARGINAL, 370)
+  ctx.font = `700 40px ${FONT_FAMILJ}`
+  ctx.fillText(`DISKUSSIONSUNDERLAG · ${arskursEtikett(scen.arskurs)}`, MARGINAL, 100)
 
+  // Scenen bär rubriken (lärarens begrepp/fråga) i sin helhet.
   const scenBredd = canvas.width - 2 * MARGINAL
   const skala = scenBredd / SCEN_BREDD
   ctx.save()
-  ctx.translate(MARGINAL, TITELYTA)
+  ctx.translate(MARGINAL, TOPPYTA)
   ctx.scale(skala, skala)
   await ritaScen(ctx, scen, mat)
   ctx.restore()
@@ -48,7 +44,7 @@ export async function komponeraExportCanvas(scen: Scen, mat: Textmatare): Promis
   ctx.fillText(
     'Skapad med Diskussionsunderlag · Barn- och skolförvaltningen, Lunds kommun',
     MARGINAL,
-    TITELYTA + SCEN_HOJD * skala + 90,
+    TOPPYTA + SCEN_HOJD * skala + 90,
   )
 
   return canvas
@@ -87,6 +83,3 @@ export function filnamn(begrepp: string): string {
   return `diskussionsunderlag-${slug || 'utan-titel'}`
 }
 
-function klipp(text: string, max: number): string {
-  return text.length > max ? `${text.slice(0, max - 1)}…` : text
-}

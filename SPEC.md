@@ -75,6 +75,12 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
 - **Logisk scen:** 1600×900; alla mått är namngivna konstanter i
   `src/domain/konstanter.ts`. Samma layoutmatte i editor (SVG), PDF (canvas)
   och PPTX (native objekt).
+- **Rubrik:** lärarens begrepp/fråga är en del av scenen (rubrikytan överst,
+  `TITEL_HOJD`), inte av sidhuvudet. Den visas därför automatiskt likadant i
+  editorn, PDF, PNG och PowerPoint. `passaTitel()` radbryter och krymper texten
+  så att den **alltid ryms i sin helhet – den klipps aldrig** (låst med tester;
+  i PPTX är den en redigerbar textruta med autofit). På uppladdad bakgrundsbild
+  läggs en ljus platta bakom rubriken för läsbarhet.
 - Kategorietiketter visas endast i editorn, aldrig i export.
 - **Gränssnitt:** menyrad överst (begrepp, årskurs, språk, bakgrund, generera);
   verktygsrad under den visas **först när underlaget finns** (export + växlar +

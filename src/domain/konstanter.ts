@@ -22,6 +22,16 @@ export const FIGUR_HOJD = 380
 export const FIGUR_MAX_BREDD = 300
 export const FIGUR_BOTTENMARGINAL = 16
 
+/**
+ * Rubrikyta överst i scenen: lärarens begrepp/fråga visas ALLTID i sin helhet
+ * (radbryts och krymper vid behov – klipps aldrig). Ytan är en del av scenen,
+ * så rubriken följer automatiskt med till PDF, PowerPoint och PNG.
+ */
+export const TITEL_HOJD = 108
+export const TITEL_TOPPMARGINAL = 20
+export const TITEL_SIDMARGINAL = 60
+export const TITEL_FONTSTORLEK = 54
+
 /** Pratbubblor. */
 export const BUBBLA_BREDD = 292
 export const BUBBLA_HOJD = 224
@@ -30,7 +40,8 @@ export const BUBBLA_PADDING = 20
 export const BUBBLA_KANTBREDD = 3
 /** Vertikal förskjutning som varannan bubbla får, för ett levande serietidningsuttryck. */
 export const BUBBLA_STAGGER = 96
-export const BUBBLA_TOPPMARGINAL = 52
+/** Avstånd mellan rubrikytan och bubblornas ovankant. */
+export const BUBBLA_TOPPMARGINAL = 24
 
 /** Typografi. Basstorlek (px i scenenheter) per stadium – yngre elever = större text, kortare utsagor. */
 export const FONTSTORLEK_PER_STADIUM = { lag: 34, mellan: 30, hog: 27 } as const
@@ -51,7 +62,6 @@ export const PDF_HOJD_PX = 2480
 /** PowerPoint 16:9 i tum. */
 export const PPTX_BREDD_TUM = 10
 export const PPTX_HOJD_TUM = 5.625
-export const PPTX_TITELHOJD_TUM = 0.62
 
 /** Standardtext för den fasta "?"-bubblan (Skolverkets konvention). */
 export const VET_INTE_TEXT = 'Jag vet inte … kan man tänka på något annat sätt?'

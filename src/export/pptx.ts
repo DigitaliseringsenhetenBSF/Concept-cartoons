@@ -1,5 +1,4 @@
 import PptxGenJS from 'pptxgenjs'
-import { arskursEtikett } from '../domain/arskurs'
 import { scenPlatser } from '../domain/scenlayout'
 import { svansGeometri } from '../domain/svans'
 import type { Scen } from '../domain/scen'
@@ -9,9 +8,12 @@ import {
   PALETT,
   PPTX_BREDD_TUM,
   PPTX_HOJD_TUM,
-  PPTX_TITELHOJD_TUM,
   SCEN_BREDD,
   SCEN_HOJD,
+  TITEL_FONTSTORLEK,
+  TITEL_HOJD,
+  TITEL_SIDMARGINAL,
+  TITEL_TOPPMARGINAL,
 } from '../domain/konstanter'
 
 /** Bilddata som exporten behöver: figurfil → data-URL, samt ev. bakgrund. */
@@ -44,21 +46,26 @@ export function byggPptx(scen: Scen, bilder: PptxBilder): PptxGenJS {
     })
   }
 
-  // Logiska scenenheter → tum. Titelraden får en egen remsa överst.
-  const skala = (PPTX_HOJD_TUM - PPTX_TITELHOJD_TUM) / SCEN_HOJD
+  // Scenen (inklusive rubrikytan) fyller hela sliden – logiska enheter → tum.
+  const skala = PPTX_HOJD_TUM / SCEN_HOJD
   const offsetX = (PPTX_BREDD_TUM - SCEN_BREDD * skala) / 2
   const tum = (v: number) => v * skala
   const punkter = (px: number) => Math.round(px * skala * 72)
 
-  slide.addText(`${scen.begrepp}  ·  ${arskursEtikett(scen.arskurs)}`, {
-    x: 0.25,
-    y: 0.05,
-    w: PPTX_BREDD_TUM - 0.5,
-    h: PPTX_TITELHOJD_TUM - 0.1,
+  // Rubriken: lärarens begrepp/fråga i sin helhet, som redigerbar textruta.
+  // shrinkText låter PowerPoint krympa texten i stället för att klippa den.
+  slide.addText(scen.begrepp, {
+    x: offsetX + tum(TITEL_SIDMARGINAL),
+    y: tum(TITEL_TOPPMARGINAL),
+    w: tum(SCEN_BREDD - 2 * TITEL_SIDMARGINAL),
+    h: tum(TITEL_HOJD - TITEL_TOPPMARGINAL),
     fontFace: 'Calibri',
-    fontSize: 16,
+    fontSize: punkter(TITEL_FONTSTORLEK),
     bold: true,
     color: PALETT.lila.replace('#', ''),
+    align: 'center',
+    valign: 'middle',
+    shrinkText: true,
   })
 
   const { bubblor, platser } = scenPlatser(scen)
@@ -70,7 +77,7 @@ export function byggPptx(scen: Scen, bilder: PptxBilder): PptxGenJS {
     slide.addImage({
       data,
       x: offsetX + tum(plats.figur.x),
-      y: PPTX_TITELHOJD_TUM + tum(plats.figur.y),
+      y: tum(plats.figur.y),
       w: tum(plats.figur.bredd),
       h: tum(plats.figur.hojd),
     })
@@ -88,7 +95,7 @@ export function byggPptx(scen: Scen, bilder: PptxBilder): PptxGenJS {
     const svansBredd = svans.basHoger.x - svans.basVanster.x
     slide.addShape('triangle', {
       x: offsetX + tum(svans.basVanster.x),
-      y: PPTX_TITELHOJD_TUM + tum(svans.basVanster.y),
+      y: tum(svans.basVanster.y),
       w: tum(svansBredd),
       h: tum(svans.spets.y - svans.basVanster.y),
       fill: { color: bubbla.fill.replace('#', '') },
@@ -100,7 +107,7 @@ export function byggPptx(scen: Scen, bilder: PptxBilder): PptxGenJS {
       shape: 'roundRect',
       rectRadius: 0.12,
       x: offsetX + tum(plats.bubbla.x),
-      y: PPTX_TITELHOJD_TUM + tum(plats.bubbla.y),
+      y: tum(plats.bubbla.y),
       w: tum(plats.bubbla.bredd),
       h: tum(plats.bubbla.hojd),
       fill: { color: bubbla.fill.replace('#', '') },

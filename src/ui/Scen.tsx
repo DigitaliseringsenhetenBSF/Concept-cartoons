@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { passaText, type Textmatare } from '../domain/layout'
+import { passaText, passaTitel, type Textmatare } from '../domain/layout'
 import { scenPlatser } from '../domain/scenlayout'
 import { svansGeometri } from '../domain/svans'
 import { figurUrl } from '../domain/figurer'
@@ -56,6 +56,7 @@ export function Scen({ scen, mat, visaKategorier, vidTextandring, vidFlytt }: Pr
   }, [scen, dragning])
 
   const { bubblor, platser } = useMemo(() => scenPlatser(forhandsScen), [forhandsScen])
+  const titel = useMemo(() => passaTitel(scen.begrepp, mat), [scen.begrepp, mat])
 
   /** Skärmkoordinat → logisk scenkoordinat (scenen skalas responsivt). */
   function tillScenKoordinat(klientX: number, klientY: number): { x: number; y: number } {
@@ -134,6 +135,38 @@ export function Scen({ scen, mat, visaKategorier, vidTextandring, vidFlytt }: Pr
       ) : (
         <rect width={SCEN_BREDD} height={SCEN_HOJD} fill={PALETT.ljusgul} />
       )}
+
+      {/* Rubrik: lärarens begrepp/fråga, alltid i sin helhet. */}
+      <g pointerEvents="none">
+        {scen.bakgrundUrl && (
+          <rect
+            x={titel.rekt.x - 24}
+            y={titel.rekt.y - 12}
+            width={titel.rekt.bredd + 48}
+            height={titel.rekt.hojd + 24}
+            rx={16}
+            fill={PALETT.vit}
+            opacity={0.88}
+          />
+        )}
+        <text
+          fontFamily={FONT_FAMILJ}
+          fontSize={titel.fontstorlek}
+          fontWeight={700}
+          fill={PALETT.lila}
+        >
+          {titel.rader.map((rad, r) => (
+            <tspan
+              key={r}
+              x={SCEN_BREDD / 2}
+              y={titel.forstaBaslinje + r * titel.radhojd}
+              textAnchor="middle"
+            >
+              {rad}
+            </tspan>
+          ))}
+        </text>
+      </g>
 
       {platser.map((plats, i) => {
         const bubbla = bubblor[i]

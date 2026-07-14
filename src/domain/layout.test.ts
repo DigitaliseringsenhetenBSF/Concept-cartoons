@@ -1,6 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { beraknaLayout, passaText, radbrytText, type Rekt, type Textmatare } from './layout'
-import { FIGUR_HOJD, FIGUR_MAX_BREDD, SCEN_BREDD, SCEN_HOJD } from './konstanter'
+import {
+  beraknaLayout,
+  passaText,
+  passaTitel,
+  radbrytText,
+  type Rekt,
+  type Textmatare,
+} from './layout'
+import {
+  FIGUR_HOJD,
+  FIGUR_MAX_BREDD,
+  SCEN_BREDD,
+  SCEN_HOJD,
+  TITEL_HOJD,
+} from './konstanter'
 
 /** Deterministisk mätare för tester: bredd ~ 0.55 × fontstorlek per tecken. */
 const mat: Textmatare = (text, fontstorlek) => text.length * fontstorlek * 0.55
@@ -66,6 +79,42 @@ describe('radbrytText', () => {
 
   it('hanterar tom text', () => {
     expect(radbrytText('', 100, 20, mat)).toEqual([''])
+  })
+})
+
+describe('passaTitel – rubriken visas alltid i sin helhet', () => {
+  const kort = 'Varför regnar det?'
+  const lang =
+    'Varför har regnbågen sina färger och varför ser man den bara ibland när solen skiner samtidigt som det regnar?'
+
+  it('behåller varje ord ur begreppet – ingenting klipps bort', () => {
+    for (const titel of [kort, lang]) {
+      const passad = passaTitel(titel, mat)
+      const utskrivet = passad.rader.join(' ').replace(/\s+/g, ' ')
+      for (const ord of titel.split(/\s+/)) {
+        expect(utskrivet).toContain(ord)
+      }
+      expect(utskrivet).not.toContain('…')
+    }
+  })
+
+  it('krymper och radbryter så att lång text ryms i rubrikytan', () => {
+    const passad = passaTitel(lang, mat)
+    expect(passad.rader.length).toBeGreaterThan(1)
+    expect(passad.rader.length * passad.radhojd).toBeLessThanOrEqual(passad.rekt.hojd)
+    for (const rad of passad.rader) {
+      expect(mat(rad, passad.fontstorlek)).toBeLessThanOrEqual(passad.rekt.bredd)
+    }
+  })
+
+  it('håller rubriken inom scenen och ovanför bubblorna', () => {
+    const passad = passaTitel(lang, mat)
+    const underkant = passad.forstaBaslinje + (passad.rader.length - 1) * passad.radhojd
+    expect(passad.rekt.y).toBeGreaterThanOrEqual(0)
+    expect(underkant).toBeLessThanOrEqual(TITEL_HOJD)
+
+    const oversta = Math.min(...beraknaLayout(FEM_FIGURER).map((p) => p.bubbla.y))
+    expect(oversta).toBeGreaterThanOrEqual(TITEL_HOJD)
   })
 })
 

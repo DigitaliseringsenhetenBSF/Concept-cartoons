@@ -1,4 +1,4 @@
-import { passaText, type Textmatare } from '../domain/layout'
+import { passaText, passaTitel, type Textmatare } from '../domain/layout'
 import { scenPlatser } from '../domain/scenlayout'
 import { svansGeometri } from '../domain/svans'
 import { figurUrl } from '../domain/figurer'
@@ -39,6 +39,30 @@ export async function ritaScen(ctx: CanvasRenderingContext2D, scen: Scen, mat: T
     ctx.fillRect(0, 0, SCEN_BREDD, SCEN_HOJD)
   }
   ctx.restore()
+
+  // Rubrik: lärarens begrepp/fråga, alltid i sin helhet (radbryts/krymper).
+  const titel = passaTitel(scen.begrepp, mat)
+  if (scen.bakgrundUrl) {
+    ctx.fillStyle = PALETT.vit
+    ctx.globalAlpha = 0.88
+    ctx.beginPath()
+    ctx.roundRect(
+      titel.rekt.x - 24,
+      titel.rekt.y - 12,
+      titel.rekt.bredd + 48,
+      titel.rekt.hojd + 24,
+      16,
+    )
+    ctx.fill()
+    ctx.globalAlpha = 1
+  }
+  ctx.font = `700 ${titel.fontstorlek}px ${FONT_FAMILJ}`
+  ctx.fillStyle = PALETT.lila
+  ctx.textAlign = 'center'
+  titel.rader.forEach((rad, r) => {
+    ctx.fillText(rad, SCEN_BREDD / 2, titel.forstaBaslinje + r * titel.radhojd)
+  })
+  ctx.textAlign = 'start'
 
   const figurBilder = await Promise.all(
     bubblor.map((bubbla) => laddaBild(figurUrl(bubbla.figur.fil))),

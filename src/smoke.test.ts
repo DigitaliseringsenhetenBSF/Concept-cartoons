@@ -22,10 +22,14 @@ const PIXEL =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
 
 describe('röktest: bråk åk 4 → scen → pptx', () => {
+  // Lång fråga: rubriken måste ändå komma med i sin helhet, inte klippas.
+  const BEGREPP =
+    'Hur stor är en halv, och blir en halv alltid lika mycket oavsett vad man delar?'
+
   it('bygger en giltig .pptx med bubblor som textformer och figurer som bilder', async () => {
-    const utsagor = await exempelUtsagor('Hur stor är en halv?')
+    const utsagor = await exempelUtsagor(BEGREPP)
     const scen = skapaScen({
-      begrepp: 'Hur stor är en halv?',
+      begrepp: BEGREPP,
       arskurs: '4',
       utsagor,
       figurer: FIGURER,
@@ -53,8 +57,12 @@ describe('röktest: bråk åk 4 → scen → pptx', () => {
     // Minst fem formobjekt (bubblor) med text.
     expect((slideXml.match(/<p:sp>/g)?.length ?? 0)).toBeGreaterThanOrEqual(5)
 
-    // Titeln finns med.
-    expect(slideXml).toContain('Årskurs 4')
+    // Rubriken (lärarens fråga) finns med i sin HELHET som redigerbar textruta –
+    // ordagrant och utan avklippning (ellipsen i ?-bubblan är en egen text).
+    const text = slideXml.replace(/<[^>]+>/g, '')
+    expect(text).toContain(BEGREPP)
+    expect(text).not.toContain(`${BEGREPP.slice(0, 20)}…`)
+    expect(slideXml).toContain('normAutofit') // shrinkText: PowerPoint krymper i stället
 
     // Presentationen refererar sliden korrekt.
     expect(zip.file('ppt/presentation.xml')).toBeTruthy()
