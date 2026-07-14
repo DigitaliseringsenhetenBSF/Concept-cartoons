@@ -1,0 +1,107 @@
+[
+  {
+    "file": "hog1.png",
+    "stadium": "högstadiet (7–9)",
+    "width": 648,
+    "height": 873,
+    "alpha": true
+  },
+  {
+    "file": "hog2.png",
+    "stadium": "högstadiet (7–9)",
+    "width": 489,
+    "height": 893,
+    "alpha": true
+  },
+  {
+    "file": "hog3.png",
+    "stadium": "högstadiet (7–9)",
+    "width": 685,
+    "height": 1119,
+    "alpha": true
+  },
+  {
+    "file": "hog4.png",
+    "stadium": "högstadiet (7–9)",
+    "width": 698,
+    "height": 1091,
+    "alpha": true
+  },
+  {
+    "file": "hog5.png",
+    "stadium": "högstadiet (7–9)",
+    "width": 691,
+    "height": 1137,
+    "alpha": true
+  },
+  {
+    "file": "lag1.png",
+    "stadium": "lågstadiet (F–3)",
+    "width": 1053,
+    "height": 1455,
+    "alpha": true
+  },
+  {
+    "file": "lag2.png",
+    "stadium": "lågstadiet (F–3)",
+    "width": 805,
+    "height": 1422,
+    "alpha": true
+  },
+  {
+    "file": "lag3.png",
+    "stadium": "lågstadiet (F–3)",
+    "width": 957,
+    "height": 1408,
+    "alpha": true
+  },
+  {
+    "file": "lag4.png",
+    "stadium": "lågstadiet (F–3)",
+    "width": 1213,
+    "height": 1450,
+    "alpha": true
+  },
+  {
+    "file": "lag5.png",
+    "stadium": "lågstadiet (F–3)",
+    "width": 1096,
+    "height": 1469,
+    "alpha": true
+  },
+  {
+    "file": "mellan1.png",
+    "stadium": "mellanstadiet (4–6)",
+    "width": 532,
+    "height": 738,
+    "alpha": true
+  },
+  {
+    "file": "mellan2.png",
+    "stadium": "mellanstadiet (4–6)",
+    "width": 746,
+    "height": 1408,
+    "alpha": true
+  },
+  {
+    "file": "mellan3.png",
+    "stadium": "mellanstadiet (4–6)",
+    "width": 531,
+    "height": 730,
+    "alpha": true
+  },
+  {
+    "file": "mellan4.png",
+    "stadium": "mellanstadiet (4–6)",
+    "width": 999,
+    "height": 1461,
+    "alpha": true
+  },
+  {
+    "file": "mellan5.png",
+    "stadium": "mellanstadiet (4–6)",
+    "width": 822,
+    "height": 1440,
+    "alpha": true
+  }
+]
