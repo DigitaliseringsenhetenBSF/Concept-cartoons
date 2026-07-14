@@ -1,0 +1,290 @@
+/* Diskussionsunderlag – stilrent i Lunds kommuns palett.
+   Ljusgul #FFF1BE · Ljusrosa #F7C1BD · Ljusblå #CCE1E0 · Orange #EB683E · Lila #5B124D · Grön #0B3A38 */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', 'Avenir Next', system-ui, sans-serif;
+  color: #0b3a38;
+  background: #fff1be;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  min-height: 100vh;
+}
+
+/* --- Sidopanel --- */
+.sidopanel {
+  background: #ffffff;
+  border-right: 4px solid #5b124d;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.sidopanel h1 {
+  margin: 0;
+  font-size: 26px;
+  color: #5b124d;
+  letter-spacing: 0.5px;
+}
+
+.underrubrik {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #0b3a38;
+}
+
+.sidopanel h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #5b124d;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sidopanel section {
+  border-top: 1px solid #cce1e0;
+  padding-top: 16px;
+}
+
+.sidopanel label {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 12px 0 4px;
+  color: #5b124d;
+}
+
+.sidopanel textarea,
+.sidopanel select,
+.sidopanel input[type='text'] {
+  width: 100%;
+  padding: 9px 10px;
+  border: 2px solid #cce1e0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  color: #0b3a38;
+  background: #ffffff;
+}
+
+.sidopanel textarea:focus,
+.sidopanel select:focus,
+.sidopanel input:focus {
+  outline: 3px solid #eb683e;
+  outline-offset: 1px;
+}
+
+.sidopanel input[type='file'] {
+  font-size: 13px;
+  width: 100%;
+}
+
+.knapprad {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primar {
+  background: #eb683e;
+  color: #1a1a1a; /* mörk text på orange: kontrast ≈ 7:1 (AA) */
+  font-weight: 700;
+  padding: 10px 16px;
+}
+
+.primar:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+.sekundar {
+  background: #ffffff;
+  color: #5b124d;
+  font-weight: 600;
+  border: 2px solid #5b124d;
+  padding: 8px 14px;
+}
+
+.sekundar:hover:not(:disabled) {
+  background: #fff1be;
+}
+
+.lank {
+  background: none;
+  color: #5b124d;
+  text-decoration: underline;
+  padding: 4px 0;
+  font-weight: 600;
+}
+
+.fel {
+  background: #f7c1bd;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 12px;
+  color: #1a1a1a;
+  font-size: 14px;
+}
+
+.fel p {
+  margin: 0 0 6px;
+}
+
+.tips {
+  font-size: 13px;
+  color: #0b3a38;
+  margin: 4px 0 10px;
+}
+
+.kryssrad {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  color: #0b3a38 !important;
+}
+
+/* --- Bubbellista i sidopanelen --- */
+.bubbellista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bubbellista li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  background: #fff1be;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.chip {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #5b124d;
+  border-radius: 10px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.bubbeltext {
+  font-size: 12px;
+  color: #0b3a38;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bubbelknappar {
+  display: flex;
+  gap: 4px;
+}
+
+.bubbelknappar button {
+  background: #ffffff;
+  border: 1px solid #5b124d;
+  color: #5b124d;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* --- Huvudyta --- */
+.huvudyta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.scenkort {
+  width: 100%;
+  max-width: 1200px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 30px rgba(91, 18, 77, 0.15);
+}
+
+.scen {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.bubbelgrupp:hover rect {
+  filter: brightness(0.97);
+}
+
+.valkommen {
+  max-width: 560px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 8px 30px rgba(91, 18, 77, 0.12);
+}
+
+.valkommen h2 {
+  color: #5b124d;
+  margin-top: 0;
+}
+
+.bubbelredigerare {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-family: 'Segoe UI', 'Avenir Next', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #0b3a38;
+  text-align: center;
+  resize: none;
+  outline: 2px dashed #eb683e;
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.sidopanel footer {
+  margin-top: auto;
+  border-top: 1px solid #cce1e0;
+  padding-top: 12px;
+}
+
+.sidopanel footer p {
+  font-size: 12px;
+  color: #0b3a38;
+  margin: 0;
+}
