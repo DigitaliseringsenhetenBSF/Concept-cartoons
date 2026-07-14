@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { genereraUtsagor, GenereringsFel } from './generera'
+import { harForstapersonsrost } from '../src/domain/rost'
 
 const BEGARAN = { begrepp: 'Varför har regnbågen sina färger?', arskurs: '4', sprak: 'svenska' } as const
 
@@ -10,7 +11,7 @@ const GILTIG_JSON = JSON.stringify({
     { kategori: 'overgeneralisering', text: 'Allt ljus som bryts blir alltid en regnbåge.' },
     { kategori: 'falsklogik', text: 'Regnet tvättar himlen så att färgerna syns.' },
   ],
-  oppenFraga: 'Jag vet inte … kan man tänka på något annat sätt?',
+  oppenFraga: 'Vad tror du? Kan man tänka på något annat sätt?',
 })
 
 describe('genereraUtsagor', () => {
@@ -18,7 +19,7 @@ describe('genereraUtsagor', () => {
     const modell = vi.fn().mockResolvedValue(GILTIG_JSON)
     const svar = await genereraUtsagor(BEGARAN, modell)
     expect(svar.utsagor).toHaveLength(4)
-    expect(svar.oppenFraga).toContain('Jag vet inte')
+    expect(svar.oppenFraga).toContain('Vad tror du')
     expect(modell).toHaveBeenCalledTimes(1)
   })
 
@@ -33,11 +34,11 @@ describe('genereraUtsagor', () => {
   it('behåller den öppna frågan på det språk modellen svarat på', async () => {
     const engelska = JSON.stringify({
       utsagor: JSON.parse(GILTIG_JSON).utsagor,
-      oppenFraga: "I don't know … could it be something else?",
+      oppenFraga: 'What do you think? Could it be something else?',
     })
     const modell = vi.fn().mockResolvedValue(engelska)
     const svar = await genereraUtsagor(BEGARAN, modell)
-    expect(svar.oppenFraga).toBe("I don't know … could it be something else?")
+    expect(svar.oppenFraga).toBe('What do you think? Could it be something else?')
   })
 
   it('tål kodstaket och omgivande text runt JSON', async () => {
@@ -88,6 +89,38 @@ describe('genereraUtsagor', () => {
       'overgeneralisering',
     ])
     expect(modell).toHaveBeenCalledTimes(1)
+  })
+
+  it('avvisar förstapersonsröst och gör omförsök ("Jag skriker på våren")', async () => {
+    const jagForm = JSON.stringify({
+      utsagor: [
+        { kategori: 'korrekt', text: 'Jag skriker på våren för det är parningstid.' },
+        { kategori: 'intuitiv', text: 'Katterna är ledsna när de låter så.' },
+        { kategori: 'overgeneralisering', text: 'Alla djur som låter högt söker en partner.' },
+        { kategori: 'falsklogik', text: 'Ljudet lockar fram våren, därför skriker de i mars.' },
+      ],
+    })
+    const modell = vi.fn().mockResolvedValueOnce(jagForm).mockResolvedValueOnce(GILTIG_JSON)
+    const svar = await genereraUtsagor(BEGARAN, modell)
+
+    expect(modell).toHaveBeenCalledTimes(2)
+    // Omförsöket ska tala om exakt vad som var fel.
+    expect(modell.mock.calls[1][1]).toContain('förstapersonsord')
+    for (const utsaga of svar.utsagor) {
+      expect(harForstapersonsrost(utsaga.text, 'svenska')).toBe(false)
+    }
+  })
+
+  it('avvisar förstapersonsröst även i den öppna frågan', async () => {
+    const jagIFragan = JSON.stringify({
+      utsagor: JSON.parse(GILTIG_JSON).utsagor,
+      oppenFraga: 'Jag vet inte … kan man tänka på något annat sätt?',
+    })
+    const modell = vi.fn().mockResolvedValueOnce(jagIFragan).mockResolvedValueOnce(GILTIG_JSON)
+    const svar = await genereraUtsagor(BEGARAN, modell)
+
+    expect(modell).toHaveBeenCalledTimes(2)
+    expect(harForstapersonsrost(svar.oppenFraga ?? '', 'svenska')).toBe(false)
   })
 
   it('kastar ett svenskt fel efter två misslyckade försök', async () => {

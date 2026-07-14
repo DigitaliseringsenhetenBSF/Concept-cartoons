@@ -1,4 +1,5 @@
 import { aiSvarSchema, type AiSvar, type GenereraBegaran } from '../src/domain/validering'
+import { forstapersonsord } from '../src/domain/rost'
 import { byggPrompt } from './prompt'
 
 /** Modellanrop injiceras så att logiken kan testas utan nätverk. */
@@ -34,14 +35,38 @@ export async function genereraUtsagor(
     }
 
     const validerat = aiSvarSchema.safeParse(normaliseraKategorier(tolkat.varde))
-    if (validerat.success) return validerat.data
-    senasteFel = validerat.error.issues.map((i) => i.message).join('; ')
-    console.warn(`AI-svar avvisat (${senasteFel}):`, JSON.stringify(tolkat.varde).slice(0, 300))
+    if (!validerat.success) {
+      senasteFel = validerat.error.issues.map((i) => i.message).join('; ')
+      console.warn(`AI-svar avvisat (${senasteFel}):`, JSON.stringify(tolkat.varde).slice(0, 300))
+      continue
+    }
+
+    // Barnen ska tala OM ämnet, inte som ämnet ("Jag skriker på våren").
+    const rostfel = hittaForstapersonsrost(validerat.data, begaran.sprak)
+    if (rostfel) {
+      senasteFel = rostfel
+      console.warn(`AI-svar avvisat (${rostfel})`)
+      continue
+    }
+
+    return validerat.data
   }
 
   throw new GenereringsFel(
     'AI-svaret följde inte det förväntade formatet. Försök igen – eller skriv utsagorna manuellt.',
   )
+}
+
+/**
+ * Kontrollerar att ingen utsaga (eller den öppna frågan) använder
+ * förstapersonsröst. Returnerar en felbeskrivning som skickas med i omförsöket,
+ * eller null om svaret är rent.
+ */
+function hittaForstapersonsrost(svar: AiSvar, sprak: string): string | null {
+  const texter = [...svar.utsagor.map((u) => u.text), svar.oppenFraga ?? '']
+  const funna = new Set(texter.flatMap((text) => forstapersonsord(text, sprak)))
+  if (funna.size === 0) return null
+  return `utsagorna använder förstapersonsord (${[...funna].join(', ')}) – barnen ska tala OM ämnet i tredje person, inte som ämnet`
 }
 
 /**

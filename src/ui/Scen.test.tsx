@@ -90,6 +90,6 @@ describe('Scen – drag och släpp', () => {
     renderaScen()
     expect(document.querySelectorAll('.bubbelgrupp')).toHaveLength(5)
     expect(document.querySelector('svg')?.textContent).toContain('Korrekt utsaga')
-    expect(document.querySelector('svg')?.textContent).toContain('Jag vet inte')
+    expect(document.querySelector('svg')?.textContent).toContain('Vad tror du')
   })
 })

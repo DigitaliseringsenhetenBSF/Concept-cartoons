@@ -63,8 +63,12 @@ export const PDF_HOJD_PX = 2480
 export const PPTX_BREDD_TUM = 10
 export const PPTX_HOJD_TUM = 5.625
 
-/** Standardtext för den fasta "?"-bubblan (Skolverkets konvention). */
-export const VET_INTE_TEXT = 'Jag vet inte … kan man tänka på något annat sätt?'
+/**
+ * Standardtext för den fasta "?"-bubblan (Skolverkets konvention).
+ * Riktad till eleven och utan förstapersonsröst – barnen talar om ämnet, inte
+ * som ämnet (se src/domain/rost.ts).
+ */
+export const VET_INTE_TEXT = 'Vad tror du? Kan man tänka på något annat sätt?'
 
 /** Bubblornas fyllnadsfärger roterar över dessa varianter (text alltid mörkgrön – WCAG AA-testat). */
 export const BUBBLA_VARIANTER = [PALETT.vit, PALETT.ljusbla, PALETT.ljusrosa] as const

@@ -28,7 +28,19 @@ Skolverket använder. Syftet är KLASSRUMSDISKUSSION, inte rätt svar: eleverna 
 reagera på barnens påståenden, och olika slags missuppfattningar ska bli synliga
 och möjliga att resonera om.
 
-Skriv exakt fyra utsagor i första person, som om olika barn säger dem:
+Skriv exakt fyra utsagor som olika barn säger OM det som diskuteras.
+
+RÖST – VIKTIGAST AV ALLT:
+Barnen talar OM fenomenet, aldrig SOM fenomenet. Använd INGA förstapersonsord
+("jag", "mig", "min", "vi", "oss" – och motsvarande på andra språk). Namnge i
+stället det som diskuteras, eller använd "de"/"den"/"det".
+- FEL: "Jag skriker på våren för att det är parningstid." (barnet låtsas vara katten)
+- FEL: "Jag tror att katterna skriker på våren." (förstapersonsord)
+- RÄTT: "Katterna skriker på våren för att det är parningstid."
+- RÄTT: "De låter som bebisar för att locka till sig andra katter."
+Varje utsaga ska kunna läsas som ett påstående om verkligheten, som eleverna kan
+hålla med om eller invända mot.
+
 
 1. "korrekt" – DET VETENSKAPLIGT KORREKTA SVARET. Den korrekta förklaringen
    enligt gällande vetenskapliga/matematiska principer, uttryckt på enkelt
@@ -55,6 +67,7 @@ Skriv exakt fyra utsagor i första person, som om olika barn säger dem:
    skapade värme i stället för att isolera.)
 
 Regler:
+- Ingen förstapersonsröst (se RÖST ovan) – varken i utsagorna eller i "oppenFraga".
 - Språkregister: ${REGISTER_PER_STADIUM[stadium]}
 - Skriv på ${sprak}.
 - Max ${Math.round(maxlangd * 0.85)} tecken per utsaga.
@@ -66,9 +79,9 @@ Regler:
   trovärdiga elevtanken av det slaget i stället för att tvinga fram något konstlat.
 
 Skriv dessutom fältet "oppenFraga": den femte, öppna bubblan som bjuder in den
-läsande eleven att komma med en egen teori (motsvarande "Jag vet inte … kan man
-tänka på något annat sätt?"). Den ska vara på ${sprak}, i samma register som
-utsagorna.
+läsande eleven att komma med en egen teori – riktad TILL eleven, t.ex. "Vad tror
+du? Kan man tänka på något annat sätt?". Också den utan förstapersonsord. Den ska
+vara på ${sprak}, i samma register som utsagorna.
 
 Svara med ENDAST giltig JSON, utan kodstaket eller kommentarer, exakt i detta format:
 {"utsagor":[{"kategori":"korrekt","text":"..."},{"kategori":"intuitiv","text":"..."},{"kategori":"overgeneralisering","text":"..."},{"kategori":"falsklogik","text":"..."}],"oppenFraga":"..."}`

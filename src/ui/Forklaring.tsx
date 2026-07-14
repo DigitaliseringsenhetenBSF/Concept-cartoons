@@ -24,7 +24,8 @@ export function Forklaring({ scen, vidStang }: Props) {
       <p className="forklaring-ingress">
         Concept Cartoons bygger på att elever reagerar på <em>andra barns</em> påståenden. Varje
         bubbla har ett pedagogiskt syfte – här ser du vilket, och varför just den här texten hamnat
-        i sin kategori.
+        i sin kategori. Barnen uttalar sig <em>om</em> det som diskuteras (”Katterna skriker för
+        att …”), aldrig i jag-form som om de vore det.
       </p>
 
       <div className="forklaring-kort">

@@ -96,7 +96,7 @@ export const KATEGORI_STOD: Record<Kategori, KategoriStod> = {
       'Innehåller ingen påstådd förklaring – bara en öppning.',
       'Signalerar att det finns fler sätt att tänka än de som redan står i bilden.',
     ],
-    exempel: '"Jag vet inte … kan man tänka på något annat sätt?"',
+    exempel: '"Vad tror du? Kan man tänka på något annat sätt?"',
     iSamtalet:
       'Sänker tröskeln för elever som inte känner igen sig i någon av de andra bubblorna. Börja gärna samtalet här.',
   },

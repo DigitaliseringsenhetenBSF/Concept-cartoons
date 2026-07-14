@@ -57,6 +57,13 @@ ingen LMS-integration, inget allmänt ritverktyg.
   `src/domain/scenlayout.ts` – det läraren ser är det som exporteras.
 - **Öppna "?"-bubblan följer språkvalet:** AI:n returnerar fältet `oppenFraga`
   på valt språk; saknas det används svensk standardtext.
+- **Röst (pedagogiskt krav):** barnen uttalar sig **om** det som diskuteras, i
+  tredje person ("Katterna skriker för att …"), aldrig **som** det ("Jag skriker
+  på våren") och utan förstapersonsord. Annars tar eleven ställning till en figur
+  som spelar roll i stället för till ett påstående om verkligheten. Regeln står i
+  AI-prompten och kontrolleras dessutom automatiskt: hittas förstapersonsord
+  (`src/domain/rost.ts`, ordlistor för svenska/engelska) avvisas svaret och ett
+  omförsök görs med felbeskrivningen.
 
 ## 4. Figurbibliotek (assets-register)
 

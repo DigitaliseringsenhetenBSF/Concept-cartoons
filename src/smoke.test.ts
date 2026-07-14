@@ -49,7 +49,7 @@ describe('röktest: bråk åk 4 → scen → pptx', () => {
       const framstaOrd = utsaga.text.split(' ').slice(0, 3).join(' ')
       expect(slideXml).toContain(framstaOrd)
     }
-    expect(slideXml).toContain('Jag vet inte')
+    expect(slideXml).toContain('Vad tror du')
 
     // Fem figurer som separata bildelement – inte en tillplattad skärmdump.
     expect(slideXml.match(/<p:pic>/g)?.length).toBe(5)
