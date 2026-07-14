@@ -10,12 +10,20 @@ export interface Utsaga {
   text: string
 }
 
+/** Lärarens fria förflyttning av figur + bubbla, i logiska scenenheter. */
+export interface Forskjutning {
+  x: number
+  y: number
+}
+
 export interface Pratbubbla {
   kategori: Kategori
   text: string
   figur: Figur
   /** Fyllnadsfärg ur BUBBLA_VARIANTER. */
   fill: string
+  /** Nollställd vid generering; ändras när läraren drar figuren i scenen. */
+  forskjutning: Forskjutning
 }
 
 export interface Scen {
@@ -39,6 +47,8 @@ export function skapaScen(parametrar: {
   arskurs: Arskurs
   sprak?: string
   utsagor: Utsaga[]
+  /** Öppna "?"-bubblan på valt språk; utan värde används svensk standardtext. */
+  oppenFraga?: string
   figurer: Figur[]
   fro: number
   bakgrundUrl?: string
@@ -56,13 +66,14 @@ export function skapaScen(parametrar: {
   const textPerKategori = new Map<Kategori, string>(
     utsagor.map((u) => [u.kategori as Kategori, u.text]),
   )
-  textPerKategori.set('vetinte', VET_INTE_TEXT)
+  textPerKategori.set('vetinte', parametrar.oppenFraga?.trim() || VET_INTE_TEXT)
 
   const bubblor: Pratbubbla[] = kategoriOrdning.map((kategori, i) => ({
     kategori,
     text: textPerKategori.get(kategori) ?? '',
     figur: valdaFigurer[i],
     fill: BUBBLA_VARIANTER[i % BUBBLA_VARIANTER.length],
+    forskjutning: { x: 0, y: 0 },
   }))
 
   return {
@@ -80,14 +91,10 @@ export function blandaKategorier(slump: Slumpkalla): Kategori[] {
   return seedadBlandning<Kategori>([...AI_KATEGORIER, 'vetinte'], slump)
 }
 
-/** Byter plats på två bubblors innehåll (kategori + text) – figurerna står kvar. */
-export function bytUtsagaPlats(scen: Scen, i: number, j: number): Scen {
-  if (i < 0 || j < 0 || i >= scen.bubblor.length || j >= scen.bubblor.length) return scen
-  const bubblor = scen.bubblor.map((b) => ({ ...b }))
-  const a = bubblor[i]
-  const b = bubblor[j]
-  ;[a.kategori, b.kategori] = [b.kategori, a.kategori]
-  ;[a.text, b.text] = [b.text, a.text]
+/** Flyttar figur + pratbubbla till ny plats i scenen (drag-och-släpp). */
+export function flyttaBubbla(scen: Scen, index: number, forskjutning: Forskjutning): Scen {
+  if (index < 0 || index >= scen.bubblor.length) return scen
+  const bubblor = scen.bubblor.map((b, i) => (i === index ? { ...b, forskjutning } : b))
   return { ...scen, bubblor }
 }
 
@@ -96,14 +103,16 @@ export function uppdateraBubbeltext(scen: Scen, index: number, text: string): Sc
   return { ...scen, bubblor }
 }
 
-/** Ersätter texterna för AI-kategorierna men behåller figurtilldelningen. */
-export function ersattUtsagor(scen: Scen, utsagor: Utsaga[]): Scen {
+/** Ersätter texterna för AI-kategorierna men behåller figurtilldelning och placering. */
+export function ersattUtsagor(scen: Scen, utsagor: Utsaga[], oppenFraga?: string): Scen {
   const textPerKategori = new Map(utsagor.map((u) => [u.kategori, u.text]))
-  const bubblor = scen.bubblor.map((b) =>
-    b.kategori !== 'vetinte' && textPerKategori.has(b.kategori as AiKategori)
-      ? { ...b, text: textPerKategori.get(b.kategori as AiKategori)! }
-      : b,
-  )
+  const bubblor = scen.bubblor.map((b) => {
+    if (b.kategori === 'vetinte') {
+      return oppenFraga?.trim() ? { ...b, text: oppenFraga.trim() } : b
+    }
+    const ny = textPerKategori.get(b.kategori as AiKategori)
+    return ny !== undefined ? { ...b, text: ny } : b
+  })
   return { ...scen, bubblor }
 }
 

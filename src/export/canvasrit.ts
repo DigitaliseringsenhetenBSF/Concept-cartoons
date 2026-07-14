@@ -1,7 +1,8 @@
-import { beraknaLayout, passaText, type Textmatare } from '../domain/layout'
+import { passaText, type Textmatare } from '../domain/layout'
+import { scenPlatser } from '../domain/scenlayout'
 import { svansGeometri } from '../domain/svans'
 import { figurUrl } from '../domain/figurer'
-import { synligaBubblor, type Scen } from '../domain/scen'
+import type { Scen } from '../domain/scen'
 import {
   BUBBLA_KANTBREDD,
   BUBBLA_PADDING,
@@ -19,8 +20,7 @@ import { laddaBild } from './bild'
  * (anroparen sätter transform/skala). Samma layoutmatte som SVG-editorn.
  */
 export async function ritaScen(ctx: CanvasRenderingContext2D, scen: Scen, mat: Textmatare) {
-  const bubblor = synligaBubblor(scen)
-  const platser = beraknaLayout(bubblor.map((b) => b.figur))
+  const { bubblor, platser } = scenPlatser(scen)
   const basStorlek = FONTSTORLEK_PER_STADIUM[scen.stadium]
 
   // Bakgrund (rundad yta): uppladdad bild beskärs till "cover", annars ljusgul.

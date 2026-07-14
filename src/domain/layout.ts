@@ -74,6 +74,32 @@ function begransa(varde: number, min: number, max: number): number {
   return Math.min(Math.max(varde, min), max)
 }
 
+/**
+ * Applicerar lärarens förskjutning (drag-och-släpp) på en plats. Förskjutningen
+ * klampas så att varken figur eller bubbla kan dras utanför scenen.
+ */
+export function forskjutPlats(
+  plats: PlatsLayout,
+  forskjutning: { x: number; y: number },
+): PlatsLayout {
+  const dx = begransa(
+    forskjutning.x,
+    -Math.min(plats.figur.x, plats.bubbla.x),
+    SCEN_BREDD - Math.max(plats.figur.x + plats.figur.bredd, plats.bubbla.x + plats.bubbla.bredd),
+  )
+  const dy = begransa(
+    forskjutning.y,
+    -Math.min(plats.figur.y, plats.bubbla.y),
+    SCEN_HOJD - Math.max(plats.figur.y + plats.figur.hojd, plats.bubbla.y + plats.bubbla.hojd),
+  )
+
+  return {
+    figur: { ...plats.figur, x: plats.figur.x + dx, y: plats.figur.y + dy },
+    bubbla: { ...plats.bubbla, x: plats.bubbla.x + dx, y: plats.bubbla.y + dy },
+    svansMal: { x: plats.svansMal.x + dx, y: plats.svansMal.y + dy },
+  }
+}
+
 export type Textmatare = (text: string, fontstorlek: number) => number
 
 /** Greedy radbrytning; överlånga ord hårddelas så att inget någonsin sticker ut. */

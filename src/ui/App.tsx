@@ -1,18 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ARSKURSER, arskursEtikett, arskursTillStadium, type Arskurs } from '../domain/arskurs'
 import { figurerForStadium, tolkaManifest, figurUrl, type Figur } from '../domain/figurer'
-import { KATEGORI_ETIKETT, type AiKategori } from '../domain/kategorier'
+import type { AiKategori } from '../domain/kategorier'
+import { MAX_BAKGRUND_BYTES, TILLATNA_BILDTYPER } from '../domain/konstanter'
 import {
-  MAX_BAKGRUND_BYTES,
-  MAXLANGD_PER_STADIUM,
-  TILLATNA_BILDTYPER,
-  VET_INTE_TEXT,
-} from '../domain/konstanter'
-import {
-  bytUtsagaPlats,
   ersattUtsagor,
+  flyttaBubbla,
   skapaScen,
   uppdateraBubbeltext,
+  type Forskjutning,
   type Scen as ScenModell,
   type Utsaga,
 } from '../domain/scen'
@@ -27,6 +23,13 @@ import { Scen } from './Scen'
 
 const SPRAK = ['svenska', 'engelska', 'arabiska', 'somaliska', 'ukrainska', 'annat'] as const
 
+const TOMMA_UTSAGOR: Utsaga[] = [
+  { kategori: 'korrekt', text: '' },
+  { kategori: 'intuitiv', text: '' },
+  { kategori: 'overgeneralisering', text: '' },
+  { kategori: 'falsklogik', text: '' },
+]
+
 export function App() {
   const [figurer, settFigurer] = useState<Figur[] | null>(null)
   const [manifestFel, settManifestFel] = useState<string | null>(null)
@@ -36,7 +39,6 @@ export function App() {
   const [sprakVal, settSprakVal] = useState<(typeof SPRAK)[number]>('svenska')
   const [annatSprak, settAnnatSprak] = useState('')
   const [bakgrundUrl, settBakgrundUrl] = useState<string | undefined>()
-  const [bakgrundFel, settBakgrundFel] = useState<string | null>(null)
 
   const [scen, settScen] = useState<ScenModell | null>(null)
   const [laddar, settLaddar] = useState(false)
@@ -55,8 +57,17 @@ export function App() {
       .catch(() => settManifestFel('Kunde inte läsa figurbiblioteket (figurer/manifest.json).'))
   }, [])
 
-  function stadiumFigurer(): Figur[] {
-    return figurerForStadium(figurer ?? [], arskursTillStadium(arskurs))
+  function byggScen(utsagor: Utsaga[], oppenFraga?: string): ScenModell {
+    return skapaScen({
+      begrepp: begrepp.trim(),
+      arskurs,
+      sprak,
+      utsagor,
+      oppenFraga,
+      figurer: figurerForStadium(figurer ?? [], arskursTillStadium(arskurs)),
+      fro: slumpFro(),
+      bakgrundUrl,
+    })
   }
 
   async function generera(generator: UtsageGenerator) {
@@ -67,25 +78,13 @@ export function App() {
     settLaddar(true)
     settFel(null)
     try {
-      const utsagor = await generator.generera({ begrepp: begrepp.trim(), arskurs, sprak })
-      settScen(byggScen(utsagor))
+      const svar = await generator.generera({ begrepp: begrepp.trim(), arskurs, sprak })
+      settScen(byggScen(svar.utsagor, svar.oppenFraga))
     } catch (f) {
       settFel(f instanceof AiFel ? f.message : 'Något gick fel vid genereringen.')
     } finally {
       settLaddar(false)
     }
-  }
-
-  function byggScen(utsagor: Utsaga[]): ScenModell {
-    return skapaScen({
-      begrepp: begrepp.trim(),
-      arskurs,
-      sprak,
-      utsagor,
-      figurer: stadiumFigurer(),
-      fro: slumpFro(),
-      bakgrundUrl,
-    })
   }
 
   function skapaTom() {
@@ -94,14 +93,7 @@ export function App() {
       return
     }
     settFel(null)
-    settScen(
-      byggScen([
-        { kategori: 'korrekt', text: '' },
-        { kategori: 'intuitiv', text: '' },
-        { kategori: 'overgeneralisering', text: '' },
-        { kategori: 'falsklogik', text: '' },
-      ]),
-    )
+    settScen(byggScen(TOMMA_UTSAGOR))
   }
 
   function slumpaOmFigurer() {
@@ -109,22 +101,18 @@ export function App() {
     const utsagor = scen.bubblor
       .filter((b) => b.kategori !== 'vetinte')
       .map((b) => ({ kategori: b.kategori as AiKategori, text: b.text }))
-    const vetInteText =
-      scen.bubblor.find((b) => b.kategori === 'vetinte')?.text ?? VET_INTE_TEXT
+    const oppenFraga = scen.bubblor.find((b) => b.kategori === 'vetinte')?.text
     const ny = skapaScen({
       begrepp: scen.begrepp,
       arskurs: scen.arskurs,
       sprak: scen.sprak,
       utsagor,
+      oppenFraga,
       figurer: figurerForStadium(figurer, scen.stadium),
       fro: slumpFro(),
       bakgrundUrl: scen.bakgrundUrl,
     })
-    settScen({
-      ...ny,
-      visaVetInte: scen.visaVetInte,
-      bubblor: ny.bubblor.map((b) => (b.kategori === 'vetinte' ? { ...b, text: vetInteText } : b)),
-    })
+    settScen({ ...ny, visaVetInte: scen.visaVetInte })
   }
 
   async function genereraOmAlla(generator: UtsageGenerator) {
@@ -132,12 +120,12 @@ export function App() {
     settLaddar(true)
     settFel(null)
     try {
-      const utsagor = await generator.generera({
+      const svar = await generator.generera({
         begrepp: scen.begrepp,
         arskurs: scen.arskurs,
         sprak: scen.sprak,
       })
-      settScen(ersattUtsagor(scen, utsagor))
+      settScen(ersattUtsagor(scen, svar.utsagor, svar.oppenFraga))
     } catch (f) {
       settFel(f instanceof AiFel ? f.message : 'Något gick fel vid genereringen.')
     } finally {
@@ -146,14 +134,14 @@ export function App() {
   }
 
   function valjBakgrund(fil: File | undefined) {
-    settBakgrundFel(null)
+    settFel(null)
     if (!fil) return
     if (!(TILLATNA_BILDTYPER as readonly string[]).includes(fil.type)) {
-      settBakgrundFel('Endast PNG-, JPEG- eller WebP-bilder kan användas.')
+      settFel('Endast PNG-, JPEG- eller WebP-bilder kan användas som bakgrund.')
       return
     }
     if (fil.size > MAX_BAKGRUND_BYTES) {
-      settBakgrundFel('Bilden är för stor (max 10 MB).')
+      settFel('Bakgrundsbilden är för stor (max 10 MB).')
       return
     }
     if (bakgrundUrl) URL.revokeObjectURL(bakgrundUrl)
@@ -195,27 +183,27 @@ export function App() {
     }
   }
 
-  const maxlangd = scen ? MAXLANGD_PER_STADIUM[scen.stadium] : undefined
-
   return (
     <div className="app">
-      <aside className="sidopanel">
-        <header>
+      <header className="topprad">
+        <div className="varumarke">
           <h1>Diskussionsunderlag</h1>
-          <p className="underrubrik">Concept cartoons för klassrummet · Lunds kommun</p>
-        </header>
+          <p>Concept cartoons för klassrummet · Lunds kommun</p>
+        </div>
 
-        <section>
+        <div className="faltgrupp faltgrupp-brett">
           <label htmlFor="begrepp">Begrepp eller fråga</label>
-          <textarea
+          <input
             id="begrepp"
-            rows={2}
+            type="text"
             maxLength={300}
             placeholder="T.ex. Varför har regnbågen sina färger?"
             value={begrepp}
             onChange={(h) => settBegrepp(h.target.value)}
           />
+        </div>
 
+        <div className="faltgrupp">
           <label htmlFor="arskurs">Årskurs</label>
           <select
             id="arskurs"
@@ -228,8 +216,10 @@ export function App() {
               </option>
             ))}
           </select>
+        </div>
 
-          <label htmlFor="sprak">Språk för utsagorna</label>
+        <div className="faltgrupp">
+          <label htmlFor="sprak">Språk</label>
           <select
             id="sprak"
             value={sprakVal}
@@ -241,153 +231,136 @@ export function App() {
               </option>
             ))}
           </select>
-          {sprakVal === 'annat' && (
+        </div>
+
+        {sprakVal === 'annat' && (
+          <div className="faltgrupp">
+            <label htmlFor="annatSprak">Skriv språk</label>
             <input
+              id="annatSprak"
               type="text"
-              placeholder="Skriv språk, t.ex. finska"
+              placeholder="t.ex. finska"
               value={annatSprak}
               onChange={(h) => settAnnatSprak(h.target.value)}
             />
-          )}
-
-          <label htmlFor="bakgrund">Bakgrundsbild (valfri – lämnar aldrig din dator)</label>
-          <input
-            id="bakgrund"
-            ref={filRef}
-            type="file"
-            accept={TILLATNA_BILDTYPER.join(',')}
-            onChange={(h) => valjBakgrund(h.target.files?.[0])}
-          />
-          {bakgrundUrl && (
-            <button className="lank" onClick={taBortBakgrund}>
-              Ta bort bakgrundsbilden
-            </button>
-          )}
-          {bakgrundFel && <p className="fel">{bakgrundFel}</p>}
-
-          <div className="knapprad">
-            <button
-              className="primar"
-              disabled={laddar || !figurer}
-              onClick={() => generera(new ServerGenerator())}
-            >
-              {laddar ? 'Genererar …' : 'Generera med AI'}
-            </button>
-            <button className="sekundar" disabled={laddar || !figurer} onClick={skapaTom}>
-              Skapa tom (skriv själv)
-            </button>
           </div>
-          {fel && (
-            <div className="fel">
-              <p>{fel}</p>
-              <button className="lank" onClick={() => generera(new ExempelGenerator())}>
-                Använd exempelutsagor istället
-              </button>
-            </div>
-          )}
-          {manifestFel && <p className="fel">{manifestFel}</p>}
-        </section>
-
-        {scen && (
-          <>
-            <section>
-              <h2>Utsagor</h2>
-              <p className="tips">
-                Klicka på en bubbla i bilden för att redigera texten.
-                {maxlangd && ` Riktmärke: max ${maxlangd} tecken.`}
-              </p>
-              <ul className="bubbellista">
-                {scen.bubblor.map((bubbla, i) => (
-                  <li key={bubbla.kategori}>
-                    <span className={`chip chip-${bubbla.kategori}`}>
-                      {KATEGORI_ETIKETT[bubbla.kategori]}
-                    </span>
-                    <span className="bubbeltext">{bubbla.text || '(tom)'}</span>
-                    <span className="bubbelknappar">
-                      <button
-                        title="Flytta till figuren till vänster"
-                        disabled={i === 0}
-                        onClick={() => settScen(bytUtsagaPlats(scen, i, i - 1))}
-                      >
-                        ←
-                      </button>
-                      <button
-                        title="Flytta till figuren till höger"
-                        disabled={i === scen.bubblor.length - 1}
-                        onClick={() => settScen(bytUtsagaPlats(scen, i, i + 1))}
-                      >
-                        →
-                      </button>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <div className="knapprad">
-                <button className="sekundar" disabled={laddar} onClick={slumpaOmFigurer}>
-                  Slumpa om figurerna
-                </button>
-                <button
-                  className="sekundar"
-                  disabled={laddar}
-                  onClick={() => genereraOmAlla(new ServerGenerator())}
-                >
-                  Generera om utsagorna
-                </button>
-              </div>
-              <label className="kryssrad">
-                <input
-                  type="checkbox"
-                  checked={scen.visaVetInte}
-                  onChange={(h) => settScen({ ...scen, visaVetInte: h.target.checked })}
-                />
-                Visa öppna "?"-bubblan
-              </label>
-              <label className="kryssrad">
-                <input
-                  type="checkbox"
-                  checked={visaKategorier}
-                  onChange={(h) => settVisaKategorier(h.target.checked)}
-                />
-                Visa kategorietiketter (endast här – aldrig i exporten)
-              </label>
-            </section>
-
-            <section>
-              <h2>Exportera</h2>
-              <div className="knapprad">
-                <button className="primar" disabled={exporterar} onClick={() => exportera('pdf')}>
-                  PDF (utskrift)
-                </button>
-                <button className="primar" disabled={exporterar} onClick={() => exportera('pptx')}>
-                  PowerPoint
-                </button>
-                <button className="sekundar" disabled={exporterar} onClick={() => exportera('png')}>
-                  PNG-bild
-                </button>
-              </div>
-              {exporterar && <p className="tips">Skapar fil …</p>}
-            </section>
-          </>
         )}
 
-        <footer>
-          <p>
-            AI-anropet skickar endast begrepp, årskurs och språk – aldrig bilder eller
-            personuppgifter. Du granskar och redigerar alltid utsagorna innan de visas för elever.
-          </p>
-        </footer>
-      </aside>
+        <div className="faltgrupp">
+          <label htmlFor="bakgrund">Bakgrundsbild (stannar på din dator)</label>
+          <div className="filrad">
+            <input
+              id="bakgrund"
+              ref={filRef}
+              type="file"
+              accept={TILLATNA_BILDTYPER.join(',')}
+              onChange={(h) => valjBakgrund(h.target.files?.[0])}
+            />
+            {bakgrundUrl && (
+              <button type="button" className="lank" onClick={taBortBakgrund}>
+                Ta bort
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="knapprad">
+          <button
+            className="knapp"
+            disabled={laddar || !figurer}
+            onClick={() => generera(new ServerGenerator())}
+          >
+            {laddar ? 'Genererar …' : 'Generera med AI'}
+          </button>
+          <button className="knapp" disabled={laddar || !figurer} onClick={skapaTom}>
+            Skapa tom (skriv själv)
+          </button>
+        </div>
+      </header>
+
+      {fel && (
+        <div className="felrad">
+          <p>{fel}</p>
+          <button className="lank" onClick={() => generera(new ExempelGenerator())}>
+            Använd exempelutsagor istället
+          </button>
+        </div>
+      )}
+      {manifestFel && (
+        <div className="felrad">
+          <p>{manifestFel}</p>
+        </div>
+      )}
+
+      {scen && (
+        <div className="verktygsrad">
+          <div className="knapprad">
+            <button className="knapp" disabled={laddar} onClick={slumpaOmFigurer}>
+              Slumpa om figurerna
+            </button>
+            <button
+              className="knapp"
+              disabled={laddar}
+              onClick={() => genereraOmAlla(new ServerGenerator())}
+            >
+              Generera om utsagorna
+            </button>
+          </div>
+
+          <div className="knapprad">
+            <button className="knapp" disabled={exporterar} onClick={() => exportera('pdf')}>
+              PDF
+            </button>
+            <button className="knapp" disabled={exporterar} onClick={() => exportera('pptx')}>
+              PowerPoint (möjlig redigering)
+            </button>
+            <button className="knapp" disabled={exporterar} onClick={() => exportera('png')}>
+              PNG-bild
+            </button>
+          </div>
+
+          <div className="kryssgrupp">
+            <label>
+              <input
+                type="checkbox"
+                checked={scen.visaVetInte}
+                onChange={(h) => settScen({ ...scen, visaVetInte: h.target.checked })}
+              />
+              Visa öppna "?"-bubblan
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={visaKategorier}
+                onChange={(h) => settVisaKategorier(h.target.checked)}
+              />
+              Visa kategorietiketter (aldrig i exporten)
+            </label>
+          </div>
+
+          {exporterar && <p className="status">Skapar fil …</p>}
+        </div>
+      )}
 
       <main className="huvudyta">
         {scen ? (
-          <div className="scenkort">
-            <Scen
-              scen={scen}
-              mat={mat}
-              visaKategorier={visaKategorier}
-              vidTextandring={(index, text) => settScen(uppdateraBubbeltext(scen, index, text))}
-            />
-          </div>
+          <>
+            <div className="scenkort">
+              <Scen
+                scen={scen}
+                mat={mat}
+                visaKategorier={visaKategorier}
+                vidTextandring={(index, text) => settScen(uppdateraBubbeltext(scen, index, text))}
+                vidFlytt={(index, forskjutning: Forskjutning) =>
+                  settScen(flyttaBubbla(scen, index, forskjutning))
+                }
+              />
+            </div>
+            <p className="tips">
+              Dra ett barn för att flytta det och dess pratbubbla. Tryck på en bubbla för att
+              redigera texten.
+            </p>
+          </>
         ) : (
           <div className="valkommen">
             <h2>Skapa ett diskussionsunderlag</h2>
@@ -398,7 +371,8 @@ export function App() {
             </p>
             <p className="tips">
               Metoden bygger på Concept Cartoons (Keogh &amp; Naylor, Skolverket): eleverna
-              diskuterar figurernas påståenden – målet är resonemang, inte rätt svar.
+              diskuterar figurernas påståenden – målet är resonemang, inte rätt svar. AI-anropet
+              skickar endast begrepp, årskurs och språk – aldrig bilder eller personuppgifter.
             </p>
           </div>
         )}

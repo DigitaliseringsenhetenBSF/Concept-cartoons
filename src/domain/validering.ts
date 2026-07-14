@@ -12,7 +12,11 @@ export const utsagaSchema = z.object({
 })
 
 export const aiSvarSchema = z
-  .object({ utsagor: z.array(utsagaSchema).length(AI_KATEGORIER.length) })
+  .object({
+    utsagor: z.array(utsagaSchema).length(AI_KATEGORIER.length),
+    /** Den öppna "?"-bubblan, formulerad på samma språk som utsagorna. */
+    oppenFraga: z.string().trim().min(1).max(MAXLANGD_HARD).optional(),
+  })
   .refine(
     (svar) => new Set(svar.utsagor.map((u) => u.kategori)).size === AI_KATEGORIER.length,
     { message: 'Svaret måste innehålla exakt en utsaga per kategori' },

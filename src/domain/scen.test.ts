@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Figur } from './figurer'
-import { bytUtsagaPlats, ersattUtsagor, skapaScen, synligaBubblor, type Utsaga } from './scen'
+import { ersattUtsagor, flyttaBubbla, skapaScen, synligaBubblor, type Utsaga } from './scen'
 import { ALLA_KATEGORIER } from './kategorier'
 import { VET_INTE_TEXT } from './konstanter'
 
@@ -57,26 +57,53 @@ describe('skapaScen', () => {
   })
 })
 
-describe('bytUtsagaPlats', () => {
-  it('byter kategori och text men figurerna står kvar', () => {
+describe('flyttaBubbla', () => {
+  it('sparar förskjutningen för rätt bubbla och lämnar övriga orörda', () => {
     const scen = scenMedFro(7)
-    const ny = bytUtsagaPlats(scen, 0, 1)
-    expect(ny.bubblor[0].kategori).toBe(scen.bubblor[1].kategori)
-    expect(ny.bubblor[0].text).toBe(scen.bubblor[1].text)
-    expect(ny.bubblor[1].kategori).toBe(scen.bubblor[0].kategori)
-    expect(ny.bubblor[0].figur).toEqual(scen.bubblor[0].figur)
-    expect(ny.bubblor[1].figur).toEqual(scen.bubblor[1].figur)
+    const ny = flyttaBubbla(scen, 2, { x: 120, y: -40 })
+    expect(ny.bubblor[2].forskjutning).toEqual({ x: 120, y: -40 })
+    expect(ny.bubblor[2].figur).toEqual(scen.bubblor[2].figur)
+    for (const i of [0, 1, 3, 4]) {
+      expect(ny.bubblor[i].forskjutning).toEqual({ x: 0, y: 0 })
+    }
+  })
+
+  it('nya scener har nollställd förskjutning', () => {
+    for (const bubbla of scenMedFro(7).bubblor) {
+      expect(bubbla.forskjutning).toEqual({ x: 0, y: 0 })
+    }
   })
 
   it('ignorerar ogiltiga index', () => {
     const scen = scenMedFro(7)
-    expect(bytUtsagaPlats(scen, 0, 9)).toBe(scen)
+    expect(flyttaBubbla(scen, 9, { x: 10, y: 10 })).toBe(scen)
+  })
+})
+
+describe('öppna "?"-bubblan', () => {
+  it('använder AI:ns formulering på valt språk när den finns', () => {
+    const scen = skapaScen({
+      begrepp: 'Why do ships float?',
+      arskurs: '4',
+      sprak: 'engelska',
+      utsagor: UTSAGOR,
+      oppenFraga: "I don't know … could it be something else?",
+      figurer: FIGURER,
+      fro: 11,
+    })
+    expect(scen.bubblor.find((b) => b.kategori === 'vetinte')?.text).toBe(
+      "I don't know … could it be something else?",
+    )
+  })
+
+  it('faller tillbaka på svensk standardtext utan AI-formulering', () => {
+    expect(scenMedFro(11).bubblor.find((b) => b.kategori === 'vetinte')?.text).toBe(VET_INTE_TEXT)
   })
 })
 
 describe('ersattUtsagor', () => {
-  it('byter texter men behåller tilldelningen och ?-bubblan', () => {
-    const scen = scenMedFro(3)
+  it('byter texter men behåller tilldelning, placering och ?-bubblan', () => {
+    const scen = flyttaBubbla(scenMedFro(3), 1, { x: 50, y: 20 })
     const nya: Utsaga[] = UTSAGOR.map((u) => ({ ...u, text: `NY: ${u.text}` }))
     const ny = ersattUtsagor(scen, nya)
     for (const bubbla of ny.bubblor) {
@@ -84,6 +111,14 @@ describe('ersattUtsagor', () => {
       else expect(bubbla.text.startsWith('NY: ')).toBe(true)
     }
     expect(ny.bubblor.map((b) => b.figur.fil)).toEqual(scen.bubblor.map((b) => b.figur.fil))
+    expect(ny.bubblor[1].forskjutning).toEqual({ x: 50, y: 20 })
+  })
+
+  it('uppdaterar ?-bubblan när AI skickar en ny formulering', () => {
+    const ny = ersattUtsagor(scenMedFro(3), UTSAGOR, 'Kan det vara på ett helt annat vis?')
+    expect(ny.bubblor.find((b) => b.kategori === 'vetinte')?.text).toBe(
+      'Kan det vara på ett helt annat vis?',
+    )
   })
 })
 

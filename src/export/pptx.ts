@@ -1,8 +1,8 @@
 import PptxGenJS from 'pptxgenjs'
 import { arskursEtikett } from '../domain/arskurs'
-import { beraknaLayout } from '../domain/layout'
+import { scenPlatser } from '../domain/scenlayout'
 import { svansGeometri } from '../domain/svans'
-import { synligaBubblor, type Scen } from '../domain/scen'
+import type { Scen } from '../domain/scen'
 import {
   BUBBLA_KANTBREDD,
   FONTSTORLEK_PER_STADIUM,
@@ -61,8 +61,7 @@ export function byggPptx(scen: Scen, bilder: PptxBilder): PptxGenJS {
     color: PALETT.lila.replace('#', ''),
   })
 
-  const bubblor = synligaBubblor(scen)
-  const platser = beraknaLayout(bubblor.map((b) => b.figur))
+  const { bubblor, platser } = scenPlatser(scen)
   const basStorlek = FONTSTORLEK_PER_STADIUM[scen.stadium]
 
   platser.forEach((plats, i) => {

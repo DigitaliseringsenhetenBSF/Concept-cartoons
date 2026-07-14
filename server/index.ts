@@ -57,8 +57,8 @@ app.post('/api/generera', async (req, res) => {
   }
 
   try {
-    const utsagor = await genereraUtsagor(begaran.data, modell.anrop)
-    res.json({ utsagor })
+    const svar = await genereraUtsagor(begaran.data, modell.anrop)
+    res.json(svar)
   } catch (fel) {
     if (fel instanceof GenereringsFel) {
       res.status(502).json({ fel: fel.message })

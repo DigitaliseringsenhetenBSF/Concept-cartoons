@@ -1,11 +1,10 @@
-import type { Utsaga } from '../domain/scen'
-import type { GenereraParametrar, UtsageGenerator } from './typer'
+import type { GenereraParametrar, Genererat, UtsageGenerator } from './typer'
 
 export class AiFel extends Error {}
 
 /** Anropar serverns /api/generera. API-nyckeln finns bara på servern. */
 export class ServerGenerator implements UtsageGenerator {
-  async generera(parametrar: GenereraParametrar): Promise<Utsaga[]> {
+  async generera(parametrar: GenereraParametrar): Promise<Genererat> {
     let svar: Response
     try {
       svar = await fetch('/api/generera', {
@@ -17,12 +16,10 @@ export class ServerGenerator implements UtsageGenerator {
       throw new AiFel('Kunde inte nå AI-servern. Kontrollera att den är igång, eller arbeta manuellt.')
     }
 
-    const data = (await svar.json().catch(() => null)) as
-      | { utsagor?: Utsaga[]; fel?: string }
-      | null
+    const data = (await svar.json().catch(() => null)) as (Genererat & { fel?: string }) | null
     if (!svar.ok || !data?.utsagor) {
       throw new AiFel(data?.fel ?? 'AI-generering misslyckades. Försök igen eller arbeta manuellt.')
     }
-    return data.utsagor
+    return { utsagor: data.utsagor, oppenFraga: data.oppenFraga }
   }
 }

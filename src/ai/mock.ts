@@ -1,13 +1,13 @@
 import type { Utsaga } from '../domain/scen'
-import type { GenereraParametrar, UtsageGenerator } from './typer'
+import type { GenereraParametrar, Genererat, UtsageGenerator } from './typer'
 
 /**
  * Exempelgenerator – används i tester, i smoke-flödet och som demonstrationsläge
  * när AI-servern inte är tillgänglig. Verktyget ska vara fullt användbart utan AI.
  */
 export class ExempelGenerator implements UtsageGenerator {
-  async generera({ begrepp }: GenereraParametrar): Promise<Utsaga[]> {
-    return exempelUtsagor(begrepp)
+  async generera({ begrepp }: GenereraParametrar): Promise<Genererat> {
+    return { utsagor: exempelUtsagor(begrepp) }
   }
 }
 

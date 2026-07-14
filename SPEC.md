@@ -50,7 +50,13 @@ ingen LMS-integration, inget allmänt ritverktyg.
   figururval och språkregister i AI-prompten.
 - **Slumpning (pedagogiskt krav):** kategori→figur-tilldelningen slumpas vid
   varje generering (seedbar Fisher–Yates, `src/domain/slump.ts`) så att ingen
-  figur konsekvent "har rätt". Läraren kan flytta utsagor manuellt (pilknappar).
+  figur konsekvent "har rätt". Läraren kan slumpa om tilldelningen.
+- **Placering:** varje bubbla bär en `forskjutning` som läraren ändrar genom att
+  dra figuren (med pratbubblan) i scenen. Förskjutningen klampas så inget kan
+  hamna utanför bildytan, och används av editor, PDF och PPTX via
+  `src/domain/scenlayout.ts` – det läraren ser är det som exporteras.
+- **Öppna "?"-bubblan följer språkvalet:** AI:n returnerar fältet `oppenFraga`
+  på valt språk; saknas det används svensk standardtext.
 
 ## 4. Figurbibliotek (assets-register)
 
@@ -70,6 +76,10 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
   `src/domain/konstanter.ts`. Samma layoutmatte i editor (SVG), PDF (canvas)
   och PPTX (native objekt).
 - Kategorietiketter visas endast i editorn, aldrig i export.
+- **Gränssnitt:** menyrad överst (begrepp, årskurs, språk, bakgrund, generera);
+  verktygsrad under den visas först när underlaget finns (slumpa/generera om,
+  export, växlar). Scenen fyller resten. Alla knappar har samma form och färg.
+  Radbrytande flex → fungerar från mobil (375 px) via iPad till projektor.
 
 ## 6. AI-generering
 

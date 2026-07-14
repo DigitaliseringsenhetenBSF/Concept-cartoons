@@ -1,5 +1,8 @@
 /* Diskussionsunderlag – stilrent i Lunds kommuns palett.
-   Ljusgul #FFF1BE · Ljusrosa #F7C1BD · Ljusblå #CCE1E0 · Orange #EB683E · Lila #5B124D · Grön #0B3A38 */
+   Ljusgul #FFF1BE · Ljusrosa #F7C1BD · Ljusblå #CCE1E0 · Orange #EB683E · Lila #5B124D · Grön #0B3A38
+
+   Layout: menyrad överst (indata), verktygsrad under (visas när underlaget finns),
+   scenen fyller resten. Radbrytande flex → fungerar från mobil till projektor. */
 
 * {
   box-sizing: border-box;
@@ -13,59 +16,60 @@ body {
 }
 
 .app {
-  display: grid;
-  grid-template-columns: 360px 1fr;
   min-height: 100vh;
-}
-
-/* --- Sidopanel --- */
-.sidopanel {
-  background: #ffffff;
-  border-right: 4px solid #5b124d;
-  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  overflow-y: auto;
 }
 
-.sidopanel h1 {
+/* --- Menyrad överst --- */
+.topprad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 14px 20px;
+  background: #ffffff;
+  border-bottom: 4px solid #5b124d;
+}
+
+.varumarke {
+  margin-right: auto;
+}
+
+.varumarke h1 {
   margin: 0;
-  font-size: 26px;
+  font-size: 22px;
   color: #5b124d;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
-.underrubrik {
-  margin: 4px 0 0;
-  font-size: 13px;
+.varumarke p {
+  margin: 2px 0 0;
+  font-size: 12px;
   color: #0b3a38;
 }
 
-.sidopanel h2 {
-  margin: 0 0 8px;
-  font-size: 16px;
-  color: #5b124d;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.faltgrupp {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
 }
 
-.sidopanel section {
-  border-top: 1px solid #cce1e0;
-  padding-top: 16px;
+.faltgrupp-brett {
+  flex: 1 1 280px;
+  min-width: 220px;
 }
 
-.sidopanel label {
-  display: block;
+.faltgrupp label {
   font-weight: 600;
-  font-size: 14px;
-  margin: 12px 0 4px;
+  font-size: 12px;
   color: #5b124d;
 }
 
-.sidopanel textarea,
-.sidopanel select,
-.sidopanel input[type='text'] {
+.faltgrupp input[type='text'],
+.faltgrupp select {
   width: 100%;
   padding: 9px 10px;
   border: 2px solid #cce1e0;
@@ -74,25 +78,33 @@ body {
   font-size: 14px;
   color: #0b3a38;
   background: #ffffff;
+  height: 42px;
 }
 
-.sidopanel textarea:focus,
-.sidopanel select:focus,
-.sidopanel input:focus {
+.faltgrupp input:focus,
+.faltgrupp select:focus,
+button:focus-visible {
   outline: 3px solid #eb683e;
   outline-offset: 1px;
 }
 
-.sidopanel input[type='file'] {
-  font-size: 13px;
-  width: 100%;
+.filrad {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
 }
 
+.filrad input[type='file'] {
+  font-size: 12px;
+  max-width: 190px;
+}
+
+/* --- Knappar: en enda variant, samma färg och storlek överallt --- */
 .knapprad {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 14px;
 }
 
 button {
@@ -102,138 +114,100 @@ button {
   border: none;
 }
 
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.primar {
+.knapp {
   background: #eb683e;
   color: #1a1a1a; /* mörk text på orange: kontrast ≈ 7:1 (AA) */
   font-weight: 700;
-  padding: 10px 16px;
+  font-size: 14px;
+  height: 42px;
+  padding: 0 16px;
+  white-space: nowrap;
 }
 
-.primar:hover:not(:disabled) {
+.knapp:hover:not(:disabled) {
   filter: brightness(0.95);
 }
 
-.sekundar {
-  background: #ffffff;
-  color: #5b124d;
-  font-weight: 600;
-  border: 2px solid #5b124d;
-  padding: 8px 14px;
-}
-
-.sekundar:hover:not(:disabled) {
-  background: #fff1be;
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .lank {
   background: none;
   color: #5b124d;
   text-decoration: underline;
+  font-weight: 600;
   padding: 4px 0;
+}
+
+/* --- Verktygsrad (visas när underlaget är skapat) --- */
+.verktygsrad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #cce1e0;
+}
+
+.kryssgrupp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-left: auto;
+}
+
+.kryssgrupp label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #0b3a38;
+}
+
+.status {
+  margin: 0;
+  font-size: 13px;
+  color: #5b124d;
   font-weight: 600;
 }
 
-.fel {
+/* --- Felmeddelanden --- */
+.felrad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
   background: #f7c1bd;
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-top: 12px;
   color: #1a1a1a;
   font-size: 14px;
 }
 
-.fel p {
-  margin: 0 0 6px;
-}
-
-.tips {
-  font-size: 13px;
-  color: #0b3a38;
-  margin: 4px 0 10px;
-}
-
-.kryssrad {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500 !important;
-  font-size: 14px !important;
-  color: #0b3a38 !important;
-}
-
-/* --- Bubbellista i sidopanelen --- */
-.bubbellista {
-  list-style: none;
+.felrad p {
   margin: 0;
-  padding: 0;
+}
+
+/* --- Huvudyta med scenen --- */
+.huvudyta {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.bubbellista li {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 8px;
-  background: #fff1be;
-  border-radius: 8px;
-  padding: 6px 8px;
-}
-
-.chip {
-  font-size: 11px;
-  font-weight: 700;
-  color: #ffffff;
-  background: #5b124d;
-  border-radius: 10px;
-  padding: 3px 8px;
-  white-space: nowrap;
-}
-
-.bubbeltext {
-  font-size: 12px;
-  color: #0b3a38;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.bubbelknappar {
-  display: flex;
-  gap: 4px;
-}
-
-.bubbelknappar button {
-  background: #ffffff;
-  border: 1px solid #5b124d;
-  color: #5b124d;
-  border-radius: 6px;
-  width: 26px;
-  height: 26px;
-  font-size: 13px;
-  line-height: 1;
-}
-
-/* --- Huvudyta --- */
-.huvudyta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
+  padding: 20px;
 }
 
 .scenkort {
   width: 100%;
-  max-width: 1200px;
+  /* Scenen är 16:9. Begränsa bredden efter kvarvarande höjd (menyrader + tips
+     ≈ 230 px) så att hela underlaget syns utan att man behöver skrolla. */
+  max-width: min(1500px, calc((100vh - 230px) * 16 / 9));
   background: #ffffff;
   border-radius: 16px;
-  padding: 16px;
+  padding: 12px;
   box-shadow: 0 8px 30px rgba(91, 18, 77, 0.15);
 }
 
@@ -242,17 +216,35 @@ button:disabled {
   height: auto;
   display: block;
   border-radius: 8px;
+  touch-action: none; /* låt drag-och-släpp äga touchen på iPad */
+}
+
+.bubbelgrupp {
+  cursor: grab;
+}
+
+.bubbelgrupp.dras {
+  cursor: grabbing;
+  opacity: 0.92;
 }
 
 .bubbelgrupp:hover rect {
   filter: brightness(0.97);
 }
 
+.tips {
+  font-size: 13px;
+  color: #0b3a38;
+  margin: 0;
+  text-align: center;
+}
+
 .valkommen {
-  max-width: 560px;
+  max-width: 640px;
+  margin: auto;
   background: #ffffff;
   border-radius: 16px;
-  padding: 36px;
+  padding: 32px;
   box-shadow: 0 8px 30px rgba(91, 18, 77, 0.12);
 }
 
@@ -277,14 +269,43 @@ button:disabled {
   padding: 8px;
 }
 
-.sidopanel footer {
-  margin-top: auto;
-  border-top: 1px solid #cce1e0;
-  padding-top: 12px;
-}
+/* --- Surfplatta och mobil --- */
+@media (max-width: 900px) {
+  .topprad,
+  .verktygsrad {
+    padding: 12px 14px;
+    gap: 12px;
+  }
 
-.sidopanel footer p {
-  font-size: 12px;
-  color: #0b3a38;
-  margin: 0;
+  .varumarke {
+    flex: 1 1 100%;
+    margin-right: 0;
+  }
+
+  .faltgrupp,
+  .faltgrupp-brett {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .knapprad {
+    flex: 1 1 100%;
+  }
+
+  .knapprad .knapp {
+    flex: 1 1 auto;
+  }
+
+  .kryssgrupp {
+    margin-left: 0;
+    flex: 1 1 100%;
+  }
+
+  .huvudyta {
+    padding: 12px;
+  }
+
+  .scenkort {
+    padding: 8px;
+  }
 }

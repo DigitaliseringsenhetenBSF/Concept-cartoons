@@ -1,5 +1,4 @@
-import { aiSvarSchema, type GenereraBegaran } from '../src/domain/validering'
-import type { Utsaga } from '../src/domain/scen'
+import { aiSvarSchema, type AiSvar, type GenereraBegaran } from '../src/domain/validering'
 import { byggPrompt } from './prompt'
 
 /** Modellanrop injiceras så att logiken kan testas utan nätverk. */
@@ -16,7 +15,7 @@ const MAX_FORSOK = 2
 export async function genereraUtsagor(
   begaran: GenereraBegaran,
   anropaModell: ModellAnrop,
-): Promise<Utsaga[]> {
+): Promise<AiSvar> {
   const { system, anvandare } = byggPrompt(begaran.begrepp, begaran.arskurs, begaran.sprak)
 
   let senasteFel = ''
@@ -35,7 +34,7 @@ export async function genereraUtsagor(
     }
 
     const validerat = aiSvarSchema.safeParse(normaliseraKategorier(tolkat.varde))
-    if (validerat.success) return validerat.data.utsagor
+    if (validerat.success) return validerat.data
     senasteFel = validerat.error.issues.map((i) => i.message).join('; ')
     console.warn(`AI-svar avvisat (${senasteFel}):`, JSON.stringify(tolkat.varde).slice(0, 300))
   }

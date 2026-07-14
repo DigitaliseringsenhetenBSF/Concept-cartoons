@@ -65,8 +65,13 @@ Regler:
 - Om någon kategori inte passar begreppet naturligt: skriv den mest närliggande
   trovärdiga elevtanken av det slaget i stället för att tvinga fram något konstlat.
 
+Skriv dessutom fältet "oppenFraga": den femte, öppna bubblan som bjuder in den
+läsande eleven att komma med en egen teori (motsvarande "Jag vet inte … kan man
+tänka på något annat sätt?"). Den ska vara på ${sprak}, i samma register som
+utsagorna.
+
 Svara med ENDAST giltig JSON, utan kodstaket eller kommentarer, exakt i detta format:
-{"utsagor":[{"kategori":"korrekt","text":"..."},{"kategori":"intuitiv","text":"..."},{"kategori":"overgeneralisering","text":"..."},{"kategori":"falsklogik","text":"..."}]}`
+{"utsagor":[{"kategori":"korrekt","text":"..."},{"kategori":"intuitiv","text":"..."},{"kategori":"overgeneralisering","text":"..."},{"kategori":"falsklogik","text":"..."}],"oppenFraga":"..."}`
 
   const anvandare = `Begrepp/fråga från läraren: "${begrepp}"
 Årskurs: ${arskurs === 'F' ? 'förskoleklass' : arskurs}`
