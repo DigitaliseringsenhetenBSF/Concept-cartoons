@@ -115,8 +115,8 @@ button {
 }
 
 .knapp {
-  background: #eb683e;
-  color: #1a1a1a; /* mörk text på orange: kontrast ≈ 7:1 (AA) */
+  background: #5b124d; /* Lila – profilfärgen */
+  color: #ffffff; /* vit på lila: kontrast ≈ 13:1 (AA/AAA) */
   font-weight: 700;
   font-size: 14px;
   height: 42px;
@@ -125,7 +125,7 @@ button {
 }
 
 .knapp:hover:not(:disabled) {
-  filter: brightness(0.95);
+  filter: brightness(1.25);
 }
 
 button:disabled {
@@ -251,6 +251,128 @@ button:disabled {
 .valkommen h2 {
   color: #5b124d;
   margin-top: 0;
+}
+
+/* --- Förklaringspanel (lärarstöd) --- */
+.forklaring {
+  width: 100%;
+  max-width: 1500px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px 24px 24px;
+  margin-top: 4px;
+  box-shadow: 0 8px 30px rgba(91, 18, 77, 0.12);
+}
+
+.forklaring-topp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.forklaring-topp h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #5b124d;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.forklaring-ingress {
+  font-size: 14px;
+  margin: 8px 0 18px;
+  max-width: 80ch;
+}
+
+.forklaring-kort {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.forklaring-kategori {
+  background: #fff1be;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border-top: 6px solid #5b124d;
+}
+
+.forklaring-kategori h3 {
+  margin: 0 0 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #5b124d;
+  border-radius: 10px;
+  padding: 4px 10px;
+}
+
+.dold-markering {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5b124d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.forklaring-kategori .kort {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.forklaring-kategori .utsaga {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border-left: 4px solid #eb683e;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #0b3a38;
+}
+
+.forklaring-kategori h4 {
+  margin: 12px 0 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #5b124d;
+}
+
+.forklaring-kategori ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+
+.forklaring-kategori li + li {
+  margin-top: 4px;
+}
+
+.forklaring-kategori p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.forklaring-kategori .exempel {
+  font-style: italic;
+}
+
+.forklaring-fot {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: #0b3a38;
+  max-width: 80ch;
 }
 
 .bubbelredigerare {

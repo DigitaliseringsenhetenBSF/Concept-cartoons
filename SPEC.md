@@ -77,9 +77,15 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
   och PPTX (native objekt).
 - Kategorietiketter visas endast i editorn, aldrig i export.
 - **Gränssnitt:** menyrad överst (begrepp, årskurs, språk, bakgrund, generera);
-  verktygsrad under den visas först när underlaget finns (slumpa/generera om,
-  export, växlar). Scenen fyller resten. Alla knappar har samma form och färg.
+  verktygsrad under den visas **först när underlaget finns** (export + växlar +
+  förklaring). Scenen fyller resten. Alla knappar har samma form och den lila
+  profilfärgen (`#5B124D`) med vit text (kontrast ≈ 13:1).
   Radbrytande flex → fungerar från mobil (375 px) via iPad till projektor.
+- **Lärarstöd:** knappen "Förklara kategorierna" öppnar en panel som för varje
+  kategori visar definition, igenkänningstecken, ett exempel av samma slag och
+  en ingång till klassrumssamtalet – tillsammans med scenens egen utsaga, så att
+  läraren ser *varför* en text är t.ex. en övergeneralisering. Stödtexterna bor i
+  `KATEGORI_STOD` (`src/domain/kategorier.ts`) och når aldrig exporten.
 
 ## 6. AI-generering
 

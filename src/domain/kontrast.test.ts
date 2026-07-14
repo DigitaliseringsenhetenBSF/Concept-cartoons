@@ -11,8 +11,8 @@ describe('WCAG AA för använda färgkombinationer', () => {
     [PALETT.gron, PALETT.ljusgul, 'brödtext på ljusgul yta'],
     [PALETT.lila, PALETT.vit, 'rubriker på vit yta'],
     [PALETT.lila, PALETT.ljusgul, 'rubriker på ljusgul yta'],
-    [PALETT.vit, PALETT.lila, 'kategorietikett (vit på lila)'],
-    [PALETT.mork, PALETT.orange, 'primärknapp (mörk text på orange)'],
+    [PALETT.vit, PALETT.lila, 'knappar och kategorietiketter (vit text på lila)'],
+    [PALETT.gron, PALETT.vit, 'förklaringspanelens brödtext'],
     [PALETT.mork, PALETT.ljusrosa, 'feltext på ljusrosa'],
   ]
 

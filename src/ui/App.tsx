@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ARSKURSER, arskursEtikett, arskursTillStadium, type Arskurs } from '../domain/arskurs'
 import { figurerForStadium, tolkaManifest, figurUrl, type Figur } from '../domain/figurer'
-import type { AiKategori } from '../domain/kategorier'
 import { MAX_BAKGRUND_BYTES, TILLATNA_BILDTYPER } from '../domain/konstanter'
 import {
-  ersattUtsagor,
   flyttaBubbla,
   skapaScen,
   uppdateraBubbeltext,
@@ -20,6 +18,7 @@ import { skapaTextmatare } from '../export/matning'
 import { exporteraPdf, exporteraPng, laddaNer, filnamn } from '../export/pdf'
 import { bildTillDataUrl } from '../export/bild'
 import { Scen } from './Scen'
+import { Forklaring } from './Forklaring'
 
 const SPRAK = ['svenska', 'engelska', 'arabiska', 'somaliska', 'ukrainska', 'annat'] as const
 
@@ -44,6 +43,7 @@ export function App() {
   const [laddar, settLaddar] = useState(false)
   const [fel, settFel] = useState<string | null>(null)
   const [visaKategorier, settVisaKategorier] = useState(true)
+  const [visaForklaring, settVisaForklaring] = useState(false)
   const [exporterar, settExporterar] = useState(false)
 
   const filRef = useRef<HTMLInputElement>(null)
@@ -94,43 +94,6 @@ export function App() {
     }
     settFel(null)
     settScen(byggScen(TOMMA_UTSAGOR))
-  }
-
-  function slumpaOmFigurer() {
-    if (!scen || !figurer) return
-    const utsagor = scen.bubblor
-      .filter((b) => b.kategori !== 'vetinte')
-      .map((b) => ({ kategori: b.kategori as AiKategori, text: b.text }))
-    const oppenFraga = scen.bubblor.find((b) => b.kategori === 'vetinte')?.text
-    const ny = skapaScen({
-      begrepp: scen.begrepp,
-      arskurs: scen.arskurs,
-      sprak: scen.sprak,
-      utsagor,
-      oppenFraga,
-      figurer: figurerForStadium(figurer, scen.stadium),
-      fro: slumpFro(),
-      bakgrundUrl: scen.bakgrundUrl,
-    })
-    settScen({ ...ny, visaVetInte: scen.visaVetInte })
-  }
-
-  async function genereraOmAlla(generator: UtsageGenerator) {
-    if (!scen) return
-    settLaddar(true)
-    settFel(null)
-    try {
-      const svar = await generator.generera({
-        begrepp: scen.begrepp,
-        arskurs: scen.arskurs,
-        sprak: scen.sprak,
-      })
-      settScen(ersattUtsagor(scen, svar.utsagor, svar.oppenFraga))
-    } catch (f) {
-      settFel(f instanceof AiFel ? f.message : 'Något gick fel vid genereringen.')
-    } finally {
-      settLaddar(false)
-    }
   }
 
   function valjBakgrund(fil: File | undefined) {
@@ -294,19 +257,7 @@ export function App() {
 
       {scen && (
         <div className="verktygsrad">
-          <div className="knapprad">
-            <button className="knapp" disabled={laddar} onClick={slumpaOmFigurer}>
-              Slumpa om figurerna
-            </button>
-            <button
-              className="knapp"
-              disabled={laddar}
-              onClick={() => genereraOmAlla(new ServerGenerator())}
-            >
-              Generera om utsagorna
-            </button>
-          </div>
-
+          {/* Exporten visas först när ett underlag finns. */}
           <div className="knapprad">
             <button className="knapp" disabled={exporterar} onClick={() => exportera('pdf')}>
               PDF
@@ -316,6 +267,13 @@ export function App() {
             </button>
             <button className="knapp" disabled={exporterar} onClick={() => exportera('png')}>
               PNG-bild
+            </button>
+            <button
+              className="knapp"
+              aria-expanded={visaForklaring}
+              onClick={() => settVisaForklaring((v) => !v)}
+            >
+              {visaForklaring ? 'Dölj förklaring' : 'Förklara kategorierna'}
             </button>
           </div>
 
@@ -360,6 +318,9 @@ export function App() {
               Dra ett barn för att flytta det och dess pratbubbla. Tryck på en bubbla för att
               redigera texten.
             </p>
+            {visaForklaring && (
+              <Forklaring scen={scen} vidStang={() => settVisaForklaring(false)} />
+            )}
           </>
         ) : (
           <div className="valkommen">
