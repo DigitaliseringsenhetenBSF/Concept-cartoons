@@ -19,15 +19,11 @@ import { exporteraPdf, exporteraPng, laddaNer, filnamn } from '../export/pdf'
 import { bildTillDataUrl } from '../export/bild'
 import { Scen } from './Scen'
 import { Forklaring } from './Forklaring'
+import { IkonAi, IkonBild, IkonBock, IkonChevron, IkonExport, IkonOga } from './ikoner'
 
 const SPRAK = ['svenska', 'engelska', 'arabiska', 'somaliska', 'ukrainska', 'annat'] as const
 
-const TOMMA_UTSAGOR: Utsaga[] = [
-  { kategori: 'korrekt', text: '' },
-  { kategori: 'intuitiv', text: '' },
-  { kategori: 'overgeneralisering', text: '' },
-  { kategori: 'falsklogik', text: '' },
-]
+type Meny = 'export' | 'visa' | null
 
 export function App() {
   const [figurer, settFigurer] = useState<Figur[] | null>(null)
@@ -38,6 +34,7 @@ export function App() {
   const [sprakVal, settSprakVal] = useState<(typeof SPRAK)[number]>('svenska')
   const [annatSprak, settAnnatSprak] = useState('')
   const [bakgrundUrl, settBakgrundUrl] = useState<string | undefined>()
+  const [bakgrundNamn, settBakgrundNamn] = useState<string | undefined>()
 
   const [scen, settScen] = useState<ScenModell | null>(null)
   const [laddar, settLaddar] = useState(false)
@@ -45,8 +42,10 @@ export function App() {
   const [visaKategorier, settVisaKategorier] = useState(true)
   const [visaForklaring, settVisaForklaring] = useState(false)
   const [exporterar, settExporterar] = useState(false)
+  const [oppenMeny, settOppenMeny] = useState<Meny>(null)
 
   const filRef = useRef<HTMLInputElement>(null)
+  const menyRef = useRef<HTMLDivElement>(null)
   const mat = useMemo(() => skapaTextmatare(), [])
   const sprak = sprakVal === 'annat' ? annatSprak.trim() || 'svenska' : sprakVal
 
@@ -56,6 +55,23 @@ export function App() {
       .then((data) => settFigurer(tolkaManifest(data)))
       .catch(() => settManifestFel('Kunde inte läsa figurbiblioteket (figurer/manifest.json).'))
   }, [])
+
+  // Stäng rullmenyerna vid klick utanför eller Escape.
+  useEffect(() => {
+    if (!oppenMeny) return
+    const vidKlick = (h: MouseEvent) => {
+      if (menyRef.current && !menyRef.current.contains(h.target as Node)) settOppenMeny(null)
+    }
+    const vidTangent = (h: KeyboardEvent) => {
+      if (h.key === 'Escape') settOppenMeny(null)
+    }
+    document.addEventListener('mousedown', vidKlick)
+    document.addEventListener('keydown', vidTangent)
+    return () => {
+      document.removeEventListener('mousedown', vidKlick)
+      document.removeEventListener('keydown', vidTangent)
+    }
+  }, [oppenMeny])
 
   function byggScen(utsagor: Utsaga[], oppenFraga?: string): ScenModell {
     return skapaScen({
@@ -87,15 +103,6 @@ export function App() {
     }
   }
 
-  function skapaTom() {
-    if (begrepp.trim().length < 2) {
-      settFel('Skriv först ett begrepp eller en fråga.')
-      return
-    }
-    settFel(null)
-    settScen(byggScen(TOMMA_UTSAGOR))
-  }
-
   function valjBakgrund(fil: File | undefined) {
     settFel(null)
     if (!fil) return
@@ -110,17 +117,20 @@ export function App() {
     if (bakgrundUrl) URL.revokeObjectURL(bakgrundUrl)
     const url = URL.createObjectURL(fil)
     settBakgrundUrl(url)
+    settBakgrundNamn(fil.name)
     if (scen) settScen({ ...scen, bakgrundUrl: url })
   }
 
   function taBortBakgrund() {
     if (bakgrundUrl) URL.revokeObjectURL(bakgrundUrl)
     settBakgrundUrl(undefined)
+    settBakgrundNamn(undefined)
     if (filRef.current) filRef.current.value = ''
     if (scen) settScen({ ...scen, bakgrundUrl: undefined })
   }
 
   async function exportera(format: 'pdf' | 'png' | 'pptx') {
+    settOppenMeny(null)
     if (!scen) return
     settExporterar(true)
     settFel(null)
@@ -144,6 +154,10 @@ export function App() {
     } finally {
       settExporterar(false)
     }
+  }
+
+  function vaxlaMeny(meny: Exclude<Meny, null>) {
+    settOppenMeny((nuvarande) => (nuvarande === meny ? null : meny))
   }
 
   return (
@@ -208,38 +222,120 @@ export function App() {
             />
           </div>
         )}
+      </header>
 
-        <div className="faltgrupp">
-          <label htmlFor="bakgrund">Bakgrundsbild (stannar på din dator)</label>
-          <div className="filrad">
-            <input
-              id="bakgrund"
-              ref={filRef}
-              type="file"
-              accept={TILLATNA_BILDTYPER.join(',')}
-              onChange={(h) => valjBakgrund(h.target.files?.[0])}
-            />
-            {bakgrundUrl && (
-              <button type="button" className="lank" onClick={taBortBakgrund}>
-                Ta bort
-              </button>
-            )}
-          </div>
+      {/* Fyra lika stora, responsiva knappar direkt under menyraden. */}
+      <div className="knappmeny" ref={menyRef}>
+        <div className="menyhallare">
+          <button
+            type="button"
+            className="menyknapp"
+            onClick={() => filRef.current?.click()}
+          >
+            <IkonBild />
+            <span className="menyknapp-text">{bakgrundUrl ? 'Byt bild' : 'Ladda upp bild'}</span>
+          </button>
+          <input
+            id="bakgrund"
+            ref={filRef}
+            type="file"
+            className="dold-fil"
+            accept={TILLATNA_BILDTYPER.join(',')}
+            onChange={(h) => {
+              valjBakgrund(h.target.files?.[0])
+              h.target.value = ''
+            }}
+          />
         </div>
 
-        <div className="knapprad">
+        <div className="menyhallare">
           <button
-            className="knapp"
+            type="button"
+            className="menyknapp"
             disabled={laddar || !figurer}
             onClick={() => generera(new ServerGenerator())}
           >
-            {laddar ? 'Genererar …' : 'Generera med AI'}
-          </button>
-          <button className="knapp" disabled={laddar || !figurer} onClick={skapaTom}>
-            Skapa tom (skriv själv)
+            <IkonAi />
+            <span className="menyknapp-text">{laddar ? 'Genererar …' : 'Generera med AI'}</span>
           </button>
         </div>
-      </header>
+
+        <div className="menyhallare">
+          <button
+            type="button"
+            className="menyknapp"
+            disabled={!scen || exporterar}
+            aria-haspopup="menu"
+            aria-expanded={oppenMeny === 'export'}
+            onClick={() => vaxlaMeny('export')}
+          >
+            <IkonExport />
+            <span className="menyknapp-text">
+              {exporterar ? 'Exporterar …' : 'Exportera'}
+              <IkonChevron className="chevron" />
+            </span>
+          </button>
+          {oppenMeny === 'export' && (
+            <div className="rullmeny" role="menu">
+              <button role="menuitem" onClick={() => exportera('pdf')}>
+                PDF (utskrift &amp; projektion)
+              </button>
+              <button role="menuitem" onClick={() => exportera('pptx')}>
+                PowerPoint (redigerbar)
+              </button>
+              <button role="menuitem" onClick={() => exportera('png')}>
+                PNG-bild
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="menyhallare">
+          <button
+            type="button"
+            className="menyknapp"
+            disabled={!scen}
+            aria-haspopup="menu"
+            aria-expanded={oppenMeny === 'visa'}
+            onClick={() => vaxlaMeny('visa')}
+          >
+            <IkonOga />
+            <span className="menyknapp-text">
+              Visa/dölj
+              <IkonChevron className="chevron" />
+            </span>
+          </button>
+          {oppenMeny === 'visa' && scen && (
+            <div className="rullmeny" role="menu">
+              <button role="menuitemcheckbox" aria-checked={visaForklaring} onClick={() => settVisaForklaring((v) => !v)}>
+                <span className="bock-plats">{visaForklaring && <IkonBock />}</span>
+                {visaForklaring ? 'Dölj förklaring' : 'Visa förklaring'}
+              </button>
+              <button
+                role="menuitemcheckbox"
+                aria-checked={scen.visaVetInte}
+                onClick={() => settScen({ ...scen, visaVetInte: !scen.visaVetInte })}
+              >
+                <span className="bock-plats">{scen.visaVetInte && <IkonBock />}</span>
+                {scen.visaVetInte ? 'Dölj öppen fråga' : 'Visa öppen fråga'}
+              </button>
+              <button role="menuitemcheckbox" aria-checked={visaKategorier} onClick={() => settVisaKategorier((v) => !v)}>
+                <span className="bock-plats">{visaKategorier && <IkonBock />}</span>
+                {visaKategorier ? 'Dölj kategorier' : 'Visa kategorier'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {bakgrundUrl && (
+        <div className="bakgrundsrad">
+          <span>Bakgrund: {bakgrundNamn ?? 'vald bild'} (stannar på din dator)</span>
+          <button type="button" className="lank" onClick={taBortBakgrund}>
+            Ta bort
+          </button>
+        </div>
+      )}
 
       {fel && (
         <div className="felrad">
@@ -252,51 +348,6 @@ export function App() {
       {manifestFel && (
         <div className="felrad">
           <p>{manifestFel}</p>
-        </div>
-      )}
-
-      {scen && (
-        <div className="verktygsrad">
-          {/* Exporten visas först när ett underlag finns. */}
-          <div className="knapprad">
-            <button className="knapp" disabled={exporterar} onClick={() => exportera('pdf')}>
-              PDF
-            </button>
-            <button className="knapp" disabled={exporterar} onClick={() => exportera('pptx')}>
-              PowerPoint (möjlig redigering)
-            </button>
-            <button className="knapp" disabled={exporterar} onClick={() => exportera('png')}>
-              PNG-bild
-            </button>
-            <button
-              className="knapp"
-              aria-expanded={visaForklaring}
-              onClick={() => settVisaForklaring((v) => !v)}
-            >
-              {visaForklaring ? 'Dölj förklaring' : 'Förklara kategorierna'}
-            </button>
-          </div>
-
-          <div className="kryssgrupp">
-            <label>
-              <input
-                type="checkbox"
-                checked={scen.visaVetInte}
-                onChange={(h) => settScen({ ...scen, visaVetInte: h.target.checked })}
-              />
-              Visa öppna "?"-bubblan
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={visaKategorier}
-                onChange={(h) => settVisaKategorier(h.target.checked)}
-              />
-              Visa kategorietiketter (aldrig i exporten)
-            </label>
-          </div>
-
-          {exporterar && <p className="status">Skapar fil …</p>}
         </div>
       )}
 

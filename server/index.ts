@@ -1,8 +1,9 @@
 import 'dotenv/config'
 import express from 'express'
 import Anthropic from '@anthropic-ai/sdk'
-import { genereraBegaranSchema } from '../src/domain/validering'
+import { forklaraBegaranSchema, genereraBegaranSchema } from '../src/domain/validering'
 import { genereraUtsagor, GenereringsFel, type ModellAnrop } from './generera'
+import { genereraForklaringar } from './forklaring'
 import { skapaOpenAiAnrop } from './openai'
 
 const app = express()
@@ -66,6 +67,35 @@ app.post('/api/generera', async (req, res) => {
       console.error('AI-anrop misslyckades:', fel)
       res.status(502).json({
         fel: 'Kunde inte nå AI-tjänsten just nu. Försök igen om en stund – eller skriv utsagorna manuellt.',
+      })
+    }
+  }
+})
+
+app.post('/api/forklara', async (req, res) => {
+  if (!modell) {
+    res.status(503).json({
+      fel: 'AI är inte konfigurerad på servern. Lärarstödet kräver en API-nyckel i .env.',
+    })
+    return
+  }
+
+  const begaran = forklaraBegaranSchema.safeParse(req.body)
+  if (!begaran.success) {
+    res.status(400).json({ fel: 'Ogiltig begäran: kontrollera begrepp och utsagor.' })
+    return
+  }
+
+  try {
+    const svar = await genereraForklaringar(begaran.data, modell.anrop)
+    res.json(svar)
+  } catch (fel) {
+    if (fel instanceof GenereringsFel) {
+      res.status(502).json({ fel: fel.message })
+    } else {
+      console.error('Förklaringsanrop misslyckades:', fel)
+      res.status(502).json({
+        fel: 'Kunde inte hämta lärarstödet just nu. Försök igen om en stund.',
       })
     }
   }

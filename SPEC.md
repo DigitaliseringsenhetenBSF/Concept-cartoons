@@ -89,16 +89,25 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
   i PPTX är den en redigerbar textruta med autofit). På uppladdad bakgrundsbild
   läggs en ljus platta bakom rubriken för läsbarhet.
 - Kategorietiketter visas endast i editorn, aldrig i export.
-- **Gränssnitt:** menyrad överst (begrepp, årskurs, språk, bakgrund, generera);
-  verktygsrad under den visas **först när underlaget finns** (export + växlar +
-  förklaring). Scenen fyller resten. Alla knappar har samma form och den lila
-  profilfärgen (`#5B124D`) med vit text (kontrast ≈ 13:1).
-  Radbrytande flex → fungerar från mobil (375 px) via iPad till projektor.
-- **Lärarstöd:** knappen "Förklara kategorierna" öppnar en panel som för varje
-  kategori visar definition, igenkänningstecken, ett exempel av samma slag och
-  en ingång till klassrumssamtalet – tillsammans med scenens egen utsaga, så att
-  läraren ser *varför* en text är t.ex. en övergeneralisering. Stödtexterna bor i
-  `KATEGORI_STOD` (`src/domain/kategorier.ts`) och når aldrig exporten.
+- **Gränssnitt:** menyrad överst (begrepp, årskurs, språk). Direkt under den en
+  **knappmeny med fyra exakt lika stora knappar** (CSS-grid `1fr`): *Ladda upp
+  bild*, *Generera med AI*, *Exportera* (rullmeny: PDF / PowerPoint / PNG) och
+  *Visa/dölj* (rullmeny: förklaring, öppen fråga, kategorietiketter). Export- och
+  Visa/dölj-knapparna är inaktiva tills ett underlag finns. Varje knapp har en
+  **ikon överst och text under** (`src/ui/ikoner.tsx`, inline-SVG utan externa
+  beroenden). Alla knappar har den lila profilfärgen (`#5B124D`) med vit text
+  (kontrast ≈ 13:1) – även uppladdningsknappen (tidigare en avvikande fil-knapp).
+  Rullmenyerna stängs vid klick utanför eller Escape.
+  Responsivt: desktop 4 i rad; ≤560 px **2×2-rutnät** där knapptexten radbryts så
+  att hela texten alltid ryms inom knappens ram. Scenen fyller resten.
+- **Lärarstöd (AI-anpassat):** *Visa/dölj → Visa förklaring* öppnar en panel som
+  för varje kategori visar en kort definition, scenens egen utsaga och – hämtat
+  från `POST /api/forklara` – **varför just den här texten hör till sin kategori**
+  och **ett konkret samtalsdrag**, allt förankrat i det aktuella begreppet och de
+  faktiska pratbubbletexterna. Panelen hämtar stödet när den öppnas och via
+  "Uppdatera lärarstödet" efter redigering. Vid fel/utan AI faller den tillbaka på
+  statiska stödtexter i `KATEGORI_STOD` (`src/domain/kategorier.ts`). Stödet når
+  aldrig exporten.
 
 ## 6. AI-generering
 
@@ -112,8 +121,15 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
   `.env` (OpenAI först om båda). Nyckel endast i server-`.env`.
 - Rekommenderad maxlängd per stadium (styr prompt + UI-riktmärke):
   lag 90, mellan 120, hog 160 tecken.
-- **Verktyget är fullt användbart utan AI:** "Skapa tom (skriv själv)" +
-  exempelgenerator som reservläge när servern/nyckeln saknas.
+- **Lärarstöd-endpoint:** `POST /api/forklara` med `{ begrepp, arskurs, sprak,
+  utsagor[], oppenFraga? }`. Kontrakt (zod, `src/domain/validering.ts`): exakt en
+  förklaring per AI-kategori med fälten `varfor` + `samtal`. Samma prompt→modell→
+  validering-mönster med ett omförsök (`server/forklaring.ts`,
+  `server/forklaringsprompt.ts`). Skickar med utsagorna (så stödet kan förklara
+  den konkreta texten) men fortfarande aldrig bilder eller personuppgifter.
+- **Verktyget är fullt användbart utan AI:** exempelgeneratorn (reservläge när
+  servern/nyckeln saknas eller AI-anropet fallerar) fyller alla bubblor, och varje
+  bubbla kan skrivas om fritt av läraren.
 
 ## 7. Export
 
@@ -127,7 +143,8 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
 
 | Data | Var den finns | Lämnar webbläsaren? |
 |---|---|---|
-| Begrepp, årskurs, språk | UI-state → `/api/generera` → AI-leverantören (OpenAI; alternativt Anthropic) | Ja (enda utflödet) |
+| Begrepp, årskurs, språk | UI-state → `/api/generera` → AI-leverantören (OpenAI; alternativt Anthropic) | Ja |
+| Utsagornas text (för lärarstödet) | UI-state → `/api/forklara` → AI-leverantören | Ja (endast text läraren själv skapat/redigerat; aldrig bilder eller personuppgifter) |
 | Uppladdad bakgrundsbild | Objekt-URL i webbläsarminnet | **Nej, aldrig** |
 | Färdigt underlag | Endast i sessionen + lärarens exporterade filer | Nej (bara som fil till lärarens dator) |
 | Analytics/spårning | Finns inte | — |

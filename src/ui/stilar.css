@@ -88,23 +88,15 @@ button:focus-visible {
   outline-offset: 1px;
 }
 
-.filrad {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 42px;
-}
-
-.filrad input[type='file'] {
-  font-size: 12px;
-  max-width: 190px;
-}
-
-/* --- Knappar: en enda variant, samma färg och storlek överallt --- */
-.knapprad {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.dold-fil {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
 }
 
 button {
@@ -141,37 +133,111 @@ button:disabled {
   padding: 4px 0;
 }
 
-/* --- Verktygsrad (visas när underlaget är skapat) --- */
-.verktygsrad {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
+/* --- Knappmeny: fyra exakt lika stora, responsiva knappar under menyraden --- */
+.knappmeny {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
   padding: 12px 20px;
   background: #ffffff;
   border-bottom: 1px solid #cce1e0;
 }
 
-.kryssgrupp {
+.menyhallare {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-left: auto;
 }
 
-.kryssgrupp label {
+/* Ikon överst, text under – tydlig funktion. Texten radbryts hellre än klipps,
+   så hela knapptexten alltid ryms inom knappens ramar (även i mobilbredd). */
+.menyknapp {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: #5b124d; /* Lila – samma profilfärg för alla fyra */
+  color: #ffffff; /* vit på lila: kontrast ≈ 13:1 (AA/AAA) */
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.menyknapp-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+  overflow-wrap: anywhere;
+}
+
+.menyknapp .chevron {
+  flex: none;
+}
+
+.menyknapp:hover:not(:disabled) {
+  filter: brightness(1.25);
+}
+
+/* --- Rullmeny (export samt visa/dölj) --- */
+.rullmeny {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: max-content;
+  background: #ffffff;
+  border: 2px solid #5b124d;
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 26px rgba(91, 18, 77, 0.22);
+}
+
+.rullmeny button {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
   color: #0b3a38;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  border-radius: 6px;
+  white-space: nowrap;
 }
 
-.status {
-  margin: 0;
-  font-size: 13px;
+.rullmeny button:hover {
+  background: #fff1be;
+}
+
+.bock-plats {
+  display: inline-flex;
+  width: 18px;
+  flex: none;
   color: #5b124d;
-  font-weight: 600;
+}
+
+/* --- Rad som visar vald bakgrundsbild --- */
+.bakgrundsrad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 20px;
+  background: #cce1e0;
+  font-size: 13px;
+  color: #0b3a38;
 }
 
 /* --- Felmeddelanden --- */
@@ -280,10 +346,46 @@ button:disabled {
   letter-spacing: 1px;
 }
 
+.forklaring-topp-knappar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .forklaring-ingress {
   font-size: 14px;
   margin: 8px 0 18px;
   max-width: 80ch;
+}
+
+.forklaring-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5b124d;
+  margin: 0 0 14px;
+}
+
+.forklaring-fel {
+  font-size: 14px;
+  color: #0b3a38;
+  background: #f7c1bd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 0 0 14px;
+}
+
+.ai-markering {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #eb683e;
+  border-radius: 10px;
+  padding: 3px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .forklaring-kort {
@@ -393,8 +495,7 @@ button:disabled {
 
 /* --- Surfplatta och mobil --- */
 @media (max-width: 900px) {
-  .topprad,
-  .verktygsrad {
+  .topprad {
     padding: 12px 14px;
     gap: 12px;
   }
@@ -410,17 +511,8 @@ button:disabled {
     min-width: 0;
   }
 
-  .knapprad {
-    flex: 1 1 100%;
-  }
-
-  .knapprad .knapp {
-    flex: 1 1 auto;
-  }
-
-  .kryssgrupp {
-    margin-left: 0;
-    flex: 1 1 100%;
+  .knappmeny {
+    padding: 12px 14px;
   }
 
   .huvudyta {
@@ -429,5 +521,18 @@ button:disabled {
 
   .scenkort {
     padding: 8px;
+  }
+}
+
+/* Mobil: 2×2-rutnät. Knapparna behåller lika storlek och texten radbryts inom
+   ramen, så hela knapptexten alltid syns. */
+@media (max-width: 560px) {
+  .knappmeny {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .menyknapp {
+    font-size: 13px;
   }
 }
