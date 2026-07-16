@@ -12,7 +12,8 @@ body {
   margin: 0;
   font-family: 'Segoe UI', 'Avenir Next', system-ui, sans-serif;
   color: #0b3a38;
-  background: #fff1be;
+  /* Ljusgrå yta som värdsidan ("Mina övningar") – korten lyfter i vitt. */
+  background: #f7f8fa;
 }
 
 .app {
@@ -36,18 +37,24 @@ body {
   margin-right: auto;
 }
 
+/* Rubrik i värdsidans stil: kraftigt runda(re) snitt med lila→magenta-gradient. */
 .varumarke h1 {
   margin: 0;
-  font-size: 22px;
-  color: #5b124d;
-  letter-spacing: 0.5px;
+  font-family: 'Nunito', 'Avenir Next Rounded', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
   white-space: nowrap;
+  background: linear-gradient(90deg, #5b124d 0%, #a21caf 55%, #e357e0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .varumarke p {
   margin: 2px 0 0;
   font-size: 12px;
-  color: #0b3a38;
+  color: #64707d;
 }
 
 .faltgrupp {
@@ -183,6 +190,15 @@ button:disabled {
 
 .menyknapp:hover:not(:disabled) {
   filter: brightness(1.25);
+}
+
+/* Primärknappen ("+ Skapa underlag") – samma magenta som värdsidans "+ Skapa ny". */
+.menyknapp-primar {
+  background: linear-gradient(90deg, #c936d8 0%, #e44ae0 100%);
+}
+
+.menyknapp-primar:hover:not(:disabled) {
+  filter: brightness(1.08);
 }
 
 /* --- Rullmeny (export samt visa/dölj) --- */
@@ -346,12 +362,6 @@ button:disabled {
   letter-spacing: 1px;
 }
 
-.forklaring-topp-knappar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .forklaring-ingress {
   font-size: 14px;
   margin: 8px 0 18px;
@@ -375,17 +385,6 @@ button:disabled {
   border-radius: 8px;
   padding: 8px 12px;
   margin: 0 0 14px;
-}
-
-.ai-markering {
-  font-size: 11px;
-  font-weight: 700;
-  color: #ffffff;
-  background: #eb683e;
-  border-radius: 10px;
-  padding: 3px 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .forklaring-kort {

@@ -74,9 +74,15 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
 
 ## 5. Design
 
-- **Palett (obligatorisk):** Ljusgul `#FFF1BE` (ytor), Ljusrosa `#F7C1BD` och
-  Ljusblå `#CCE1E0` (bubbelvarianter), Orange `#EB683E` (accent/primärknapp),
-  Lila `#5B124D` (rubriker, konturer), Grön `#0B3A38` (text) + vitt/nästan-svart.
+- **Palett:** Lunds kommuns palett gäller i **scenen/exporten**: Ljusgul `#FFF1BE`
+  (scenens yta), Ljusrosa `#F7C1BD` och Ljusblå `#CCE1E0` (bubbelvarianter),
+  Lila `#5B124D` (konturer, knappar), Grön `#0B3A38` (text) + vitt/nästan-svart.
+- **Värdsidans utseende (produktägarbeslut 2026-07-16):** verktyget blir en del
+  av en befintlig plattform ("Mina övningar") och appens ram följer dess design:
+  ljusgrå sidbakgrund `#f7f8fa`, rubrik i fett rundat snitt med
+  lila→magenta-gradient (`#5B124D → #a21caf → #e357e0`, background-clip: text),
+  och primärknappen i plattformens magenta gradient (`#c936d8 → #e44ae0`,
+  klass `menyknapp-primar`). Scenen/exporten behåller Lund-paletten.
 - **WCAG AA** låses av enhetstester (`src/domain/kontrast.test.ts`). Notera:
   vit text på orange klarar inte AA → primärknappar har mörk text.
 - **Logisk scen:** 1600×900; alla mått är namngivna konstanter i
@@ -91,23 +97,23 @@ normaliseras vid layout (`FIGUR_HOJD`), proportioner bevaras.
 - Kategorietiketter visas endast i editorn, aldrig i export.
 - **Gränssnitt:** menyrad överst (begrepp, årskurs, språk). Direkt under den en
   **knappmeny med fyra exakt lika stora knappar** (CSS-grid `1fr`): *Ladda upp
-  bild*, *Generera med AI*, *Exportera* (rullmeny: PDF / PowerPoint / PNG) och
-  *Visa/dölj* (rullmeny: förklaring, öppen fråga, kategorietiketter). Export- och
-  Visa/dölj-knapparna är inaktiva tills ett underlag finns. Varje knapp har en
-  **ikon överst och text under** (`src/ui/ikoner.tsx`, inline-SVG utan externa
-  beroenden). Alla knappar har den lila profilfärgen (`#5B124D`) med vit text
-  (kontrast ≈ 13:1) – även uppladdningsknappen (tidigare en avvikande fil-knapp).
-  Rullmenyerna stängs vid klick utanför eller Escape.
+  bild*, *+ Skapa underlag* (primärknapp i magenta, startar AI-genereringen),
+  *Exportera* (rullmeny: PDF / PowerPoint / PNG) och *Visa/dölj* (rullmeny:
+  förklaring, öppen fråga, kategorietiketter). Export- och Visa/dölj-knapparna är
+  inaktiva tills ett underlag finns. Varje knapp har en **ikon överst och text
+  under** (`src/ui/ikoner.tsx`, inline-SVG utan externa beroenden). Sekundära
+  knappar i lila (`#5B124D`) med vit text (kontrast ≈ 13:1) – även
+  uppladdningsknappen. Rullmenyerna stängs vid klick utanför eller Escape.
   Responsivt: desktop 4 i rad; ≤560 px **2×2-rutnät** där knapptexten radbryts så
   att hela texten alltid ryms inom knappens ram. Scenen fyller resten.
 - **Lärarstöd (AI-anpassat):** *Visa/dölj → Visa förklaring* öppnar en panel som
   för varje kategori visar en kort definition, scenens egen utsaga och – hämtat
   från `POST /api/forklara` – **varför just den här texten hör till sin kategori**
   och **ett konkret samtalsdrag**, allt förankrat i det aktuella begreppet och de
-  faktiska pratbubbletexterna. Panelen hämtar stödet när den öppnas och via
-  "Uppdatera lärarstödet" efter redigering. Vid fel/utan AI faller den tillbaka på
-  statiska stödtexter i `KATEGORI_STOD` (`src/domain/kategorier.ts`). Stödet når
-  aldrig exporten.
+  faktiska pratbubbletexterna. Panelen har inga egna knappar: den öppnas/stängs
+  via Visa/dölj-menyn och hämtar om stödet automatiskt när bubbeltexterna ändras.
+  Vid fel/utan AI faller den tillbaka på statiska stödtexter i `KATEGORI_STOD`
+  (`src/domain/kategorier.ts`). Stödet når aldrig exporten.
 
 ## 6. AI-generering
 

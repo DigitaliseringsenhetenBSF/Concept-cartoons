@@ -12,16 +12,16 @@ import { IkonAi } from './ikoner'
 
 interface Props {
   scen: Scen
-  vidStang: () => void
 }
 
 /**
  * Lärarstöd: förklarar varje ruta UTIFRÅN den konkreta frågan och de
  * pratbubbletexter som just skapats/redigerats. Innehållet genereras av AI
  * (serverns /api/forklara); vid fel visas ett stabilt statiskt stöd i stället.
- * Följer aldrig med till exporten.
+ * Öppnas/stängs via Visa/dölj-menyn och hämtas om automatiskt när texterna
+ * ändras. Följer aldrig med till exporten.
  */
-export function Forklaring({ scen, vidStang }: Props) {
+export function Forklaring({ scen }: Props) {
   const [forklaringar, settForklaringar] = useState<KategoriForklaring[] | null>(null)
   const [laddar, settLaddar] = useState(false)
   const [fel, settFel] = useState<string | null>(null)
@@ -75,14 +75,6 @@ export function Forklaring({ scen, vidStang }: Props) {
     <section className="forklaring" aria-label="Förklaring till kategorierna">
       <div className="forklaring-topp">
         <h2>Förklaring till kategorierna</h2>
-        <div className="forklaring-topp-knappar">
-          <button className="knapp" onClick={hamta} disabled={laddar}>
-            {laddar ? 'Hämtar …' : 'Uppdatera lärarstödet'}
-          </button>
-          <button className="knapp" onClick={vidStang}>
-            Stäng förklaringen
-          </button>
-        </div>
       </div>
 
       <p className="forklaring-ingress">
@@ -109,7 +101,6 @@ export function Forklaring({ scen, vidStang }: Props) {
             <article key={kategori} className={`forklaring-kategori kategori-${kategori}`}>
               <h3>
                 <span className="chip">{KATEGORI_ETIKETT[kategori]}</span>
-                {aiStod && <span className="ai-markering">AI-anpassad</span>}
                 {doldMenFinns && <span className="dold-markering">dold i bilden</span>}
               </h3>
 

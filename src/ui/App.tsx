@@ -251,12 +251,12 @@ export function App() {
         <div className="menyhallare">
           <button
             type="button"
-            className="menyknapp"
+            className="menyknapp menyknapp-primar"
             disabled={laddar || !figurer}
             onClick={() => generera(new ServerGenerator())}
           >
             <IkonAi />
-            <span className="menyknapp-text">{laddar ? 'Genererar …' : 'Generera med AI'}</span>
+            <span className="menyknapp-text">{laddar ? 'Genererar …' : '+ Skapa underlag'}</span>
           </button>
         </div>
 
@@ -369,9 +369,7 @@ export function App() {
               Dra ett barn för att flytta det och dess pratbubbla. Tryck på en bubbla för att
               redigera texten.
             </p>
-            {visaForklaring && (
-              <Forklaring scen={scen} vidStang={() => settVisaForklaring(false)} />
-            )}
+            {visaForklaring && <Forklaring scen={scen} />}
           </>
         ) : (
           <div className="valkommen">
